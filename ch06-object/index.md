@@ -23,7 +23,7 @@
 1. 关键字 new
 1. [Object.create()][object.create] 方法（ES5）
 
-[object.create]: (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
+[object.create]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
 
 ### 6.1.1 对象直接量
 
