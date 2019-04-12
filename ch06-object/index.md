@@ -2,17 +2,17 @@
 
 ## 概述
 
-1. 对象是从字符串到值的映射。除了字符串，数字，true，false，null，undefined 之外，Javascript 中的值都是对象
-1. 除了保持自有的属性，Javascript 对象还可以从原型继承属性。对象的方法通常是继承的属性
-1. 对象的常见用法是 create，set，query，delete，test，enumerate
+1. 对象是从字符串到值的映射。除了字符串，数字，true，false，null，undefined 之外，Javascript 中的值都是对象。
+1. 除了保持自有的属性，Javascript 对象还可以从原型继承属性。对象的方法通常是继承的属性。
+1. 对象的常见用法是创建 create，设置 set，查询 query，删除 delete，检测 test，枚举 enumerate 它的属性。
 1. 除了名字和值之外，每个属性还有属性特性(property attribute):
-   - writable，是否可以设置该属性
-   - enumerable，是可以通过 for/in 循环返回该属性
-   - configurable，是否可以删除或者修改该属性
-1. 除了包含属性之外，每个对象还有 3 个对象特性(object attribute)
-   - 对象的原型 prototype 指向另一个对象，本对象的属性继承自他的原型对象
-   - 对象的类 class 是一个标识对象类型的字符串
-   - 对象的扩展标记 extensible flag 指明是否可以向该对象添加新属性（ES5）
+   - writable，是否可以设置该属性。
+   - enumerable，是可以通过 for/in 循环返回该属性。
+   - configurable，是否可以删除或者修改该属性。
+1. 除了包含属性之外，每个对象还有 3 个对象特性(object attribute)。
+   - 对象的原型 prototype 指向另一个对象，本对象的属性继承自他的原型对象。
+   - 对象的类 class 是一个标识对象类型的字符串。
+   - 对象的扩展标记 extensible flag 指明是否可以向该对象添加新属性。（ES5）
 1. 对象可以分为 native object, host object(如浏览器定义的 HTMLElement 等对象), user-defined object。属性可以分为 own property, inherited property(从原型继承)。
 
 ## 6.1 创建对象
@@ -21,7 +21,9 @@
 
 1. 对象直接量
 1. 关键字 new
-1. [Object.create()方法](<Object.create()>)（ES5）
+1. [Object.create()][object.create] 方法（ES5）
+
+[object.create]: (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
 
 ### 6.1.1 对象直接量
 
@@ -79,14 +81,16 @@
 没有原型的对象为数不多，Object.prototype 就是其中之一。它不继承任何属性。  
 其他原型对象都是普通对象，普通对象都具有原型。举例说明如下：
 
-    var p = new (function() {})().__proto__  // 这里p就是上文说的普通对象，一个空的object对象{}
-    p.__proto__ === Object.prototype         // 这里返回true
+    function f() {}
+    var o = new f()
+    var p = Object.getPrototypeOf(o) // o的原型对象p就是普通对象，一个空的object对象{}
+    Object.getPrototypeOf(p) === Object.prototype // => true p的原型对象是Object.prototype
 
-所有内置的构造函数(以及大部分自定义的构造函数)都具有一个继承自 Object.prototype 的原型。例如 Date.prototype 就是继承自 Object.prototype，因此 new Date()创建的对象的属性同时继承自 Date.prototype 和 Object.prototype。这一系列连接的原型对象就是 **原型链(prototype chain)**
+所有内置的构造函数(以及大部分自定义的构造函数)都具有一个继承自 Object.prototype 的原型。例如 Date.prototype 就是继承自 Object.prototype，因此 new Date()创建的对象的属性同时继承自 Date.prototype 和 Object.prototype。这一系列链接的原型对象就是 **原型链(prototype chain)**
 
 ### 6.1.4 Object.create()
 
-ES5 定义了 Object.create 方法，第一个参数是这个对象的原型，第二个可选参数可以进一步描述对象的属性。
+ES5 定义了 [Object.create()][object.create] 方法，第一个参数是这个对象的原型，第二个可选参数可以进一步描述对象的属性。
 
     var o1 = Object.create({x:1, y:2})       // o1继承了属性x和y
     var o2 = Object.create(null)             // o2没有原型对象，就连基础方法toString等都没有，不能和+连接符正常工作
@@ -128,11 +132,11 @@ ES5 定义了 Object.create 方法，第一个参数是这个对象的原型，�
     Wed Apr 10 2019 22:50:01 GMT+0800 (中国标准时间): 1554907801674,
     null: null, undefined: undefined, NaN: NaN}
 
-可以看到：输出结果中，2 个 object 对象被合并成一个了(2 个 function 对象同理)。这是因为 object 对象的 toString 方法返回的是它的 protype 对象，而 object 对象的 protype 是一样的， key 出现了重复，前一个的值就会被后一个覆盖。
+可以看到：输出结果中，2 个 Object 对象被合并成一个了(2 个 function 对象同理)。这是因为 Object 对象的 toString 方法返回的是它的 protype 对象，而 2 个 Object 对象的 protype 是一样的， key 出现了重复，前一个的值就会被后一个覆盖。
 
 ### 6.2.1 作为关联数组的对象
 
-使用[]运算符可以在运行时动态添加属性值，而.运算的标识符是静态的，不能动态修改。
+使用方括号([])运算符可以在运行时动态添加属性值，而点(.)运算的标识符是静态的，不能动态修改。
 
     function addstock(portfolio, stockname, shares) {
         portfolio[stockname] = shares
@@ -159,14 +163,14 @@ ES5 定义了 Object.create 方法，第一个参数是这个对象的原型，�
     }
 
     // 读取继承的属性
-    var o = {}; // o从Object.prototype继承对象的方法
+    var o = {};           // o从Object.prototype继承对象的方法
     o.x = 1;
-    var p = inherit(o); // p继承o和Object.prototype
+    var p = inherit(o);   // p继承o和Object.prototype
     p.y = 2;
-    var q = inherit(p); // q继承p, o和Object.prototype
+    var q = inherit(p);   // q继承p, o和Object.prototype
     q.z = 3;
     var s = q.toString(); // toString继承自Object.prototype
-    q.x + q.y; // => 3 x, y分别自o和p继承
+    q.x + q.y;            // => 3 x, y分别自o和p继承
 
 给对象 o 的属性 k 赋值只可能是一下 3 种情况之一：
 
@@ -211,13 +215,56 @@ ES5 定义了 Object.create 方法，第一个参数是这个对象的原型，�
      */
     Object.prototype = {}
 
-给 null 和 undefined 设置属性也会报类型错误。以下场景给对象 o 设置属性 p 也会失败：
+给 null 和 undefined 设置属性也会报类型错误。
 
-// TODO：给出相应的例子
+    // Uncaught TypeError: Cannot set property 'a' of null
+    null.a = 1
 
-- o 中的属性 p 是只读的：不能给只读属性重新赋值（defineProperty()方法中有一个例外）
+以下场景给对象 o 设置属性 p 也会失败：
+
+- o 中的属性 p 是只读的：不能给只读属性重新赋值（defineProperty()方法中属性的 configurable 为 true 的时候例外）
 - o 中的属性 p 是继承的，且它是只读的：不能通过同名自有属性覆盖只读的继承属性
 - o 中不存在自有属性 p：o 没有使用 setter 方法继承属性 p，并且 o 的可扩展性 extensible attribute 是 false。如果 o 中不存在 p,而且没有 setter 方法可供调用，则 p 一定会添加至 o 中。但是如果 o 不是可扩展的，那么在 o 中不能定义新属性。
+
+举例说明：
+
+    var o = Object.defineProperty({}, "p", { value: 0, writable: false });
+    o.p = 1; // 赋值失败，但不报错，严格模式下会报错
+    o.p; // => 0 还是原来的值
+
+    var o = Object.defineProperty({}, "p", { value: 0, writable: false, configurable: true });
+    /**
+     * 赋值失败，但不报错。
+     * 严格模式下会报错：Uncaught TypeError: Cannot assign to read only property 'p' of object '#<Object>'
+     */
+    o.p = 1;
+    o.p; // => 0 还是原来的值
+    Object.defineProperty(o, "p", { value: 2 }); // 修改成功
+    o.p; // => 2
+
+    var pro = Object.defineProperty({}, "p", { value: 0, writable: false }); // 设置pro的p属性为只读
+    var o = Object.create(pro) // pro是o的原型
+    o.p = 1; // 赋值失败，但不报错。严格模式下报类型错误
+    o.p // => 0
+
+    var o = {};
+    o.p2 = 5;                    // 赋值成功
+    Object.preventExtensions(o); // o是不可扩展的
+    o.p = 2;                     // 赋值失败，但是不报错
+    o.p;                         // => undefined
+    o.p2                         // => 5
+
+    var pro = { set p2(value) { this.value = value * 2 } };
+    var o = Object.create(pro)
+    o.value = 0;
+    Object.preventExtensions(o)
+    /**
+     * 赋值失败，但不报错。
+     * 严格模式下会报错：Uncaught TypeError: Cannot add property p, object is not extensible
+     */
+    o.p = 5;
+    o.p2 = 10; // p2是继承属性，赋值成功
+    o.value    // => 20
 
 ## 6.3 删除属性
 
@@ -239,30 +286,30 @@ delete 只能删除自有属性，不能删除继承属性。要删除继承属�
     var o2 = Object.create(p);
 
     o1.x = 2;
-    delete o1.x; // o1中定义的x属性被删除
-    delete o2.x; // 无法删除原型p中的x属性
+    delete o1.x;             // o1中定义的x属性被删除
+    delete o2.x;             // 无法删除原型p中的x属性
     console.log(o1.x, o2.x); // => 1 1
 
-    delete p.x; // 原型对象中的x属性被删除，o1和o2对象都会受到影响
+    delete p.x;              // 原型对象中的x属性被删除，o1和o2对象都会受到影响
     console.log(o1.x, o2.x); // => undefined undefined
 
 当 delete 删除成功，或者没有任何副作用（比如删除不存在的属性）时，它返回 true。如果 delete 后面不是一个属性访问表达式，delete 也返回 true。
 
     o = {x: 1}
-    delete o.x // => true 删除成功
-    delete o.x // => true 什么也不做（x不存在了）
-    delete o.toString // => true toString是继承来的，什么也不做
-    delete 1 // => true 无意义
+    delete o.x         // => true 删除成功
+    delete o.x         // => true 什么也不做（x不存在了）
+    delete o.toString  // => true toString是继承来的，什么也不做
+    delete 1           // => true 无意义
 
 **delete 不能删除那些可配置性为 false 的属性。**  
 某些内置对象的属性是不可配置的，比如通过变量声明和函数声明创建的全局对象的属性。  
 在严格模式中，删除一个不可配置属性会报一个类型错误。在非严格模式中，delete 会返回 false
 
     delete Object.prototype // 不能删除，属性是不可配置的
-    var x = 1; // 声明一个全局变量
-    delete this.x; // 不能删除全局变量
-    function f() {}; // 声明一个全局函数
-    delete this.x; // 不能删除全局函数
+    var x = 1;              // 声明一个全局变量
+    delete this.x;          // 不能删除全局变量
+    function f() {};        // 声明一个全局函数
+    delete this.x;          // 不能删除全局函数
 
 在非严格模式删除全局对象的可配置属性时，可以省略对全局变量的引用。
 
@@ -273,7 +320,7 @@ delete 只能删除自有属性，不能删除继承属性。要删除继承属�
 
     "use strict"
     this.x = 1
-    delete x // Uncaught SyntaxError: Delete of an unqualified identifier in strict mode.
+    delete x      // Uncaught SyntaxError: Delete of an unqualified identifier in strict mode.
     delete this.x // 正常工作
 
 ## 6.4 检测属性
@@ -285,21 +332,21 @@ delete 只能删除自有属性，不能删除继承属性。要删除继承属�
 1. propertyIsEnumerable()方法
 1. 属性查询(o.p !== undefined)
 
-in 运算符左侧是属性名(字符串)，右侧是对象。如果对象的自有属性或者继承属性包含这个属性则返回 true
+in 运算符左侧是属性名(字符串)，右侧是对象。如果对象的**自有属性或者继承属性**包含这个属性则返回 true
 
     var o = { x: 1 }
     "x" in o         // true 自有属性
     "y" in o         // false 该属性不存在
     "toString" in o  // true 继承属性
 
-对象的 hasOwnProperty 方法用来检测给定的名字是否是对象的自有属性。继承属性将会返回 false。
+对象的 hasOwnProperty 方法用来检测给定的名字是否是对象的**自有属性**。继承属性将会返回 false。
 
     var o = { x: 1 };
     o.hasOwnProperty("x");        // true 自有属性
     o.hasOwnProperty("y");        // false 属性不存在
     o.hasOwnProperty("toString"); // false 继承属性
 
-对象的 propertyIsEnumerable()方法只有检测到自有属性且该属性的可枚举性 enumerable attribute 为 true 时，它才返回 true。  
+对象的 propertyIsEnumerable()方法只有检测到 **自有属性且该属性的可枚举性为 true** 时，它才返回 true。  
 某些内置属性是不可枚举的。通常由 JavaScript 代码创建的属性都是可枚举的，除非在 ES5 中明确指定属性的可枚举性。
 
     var o = Object.create({ y: 2 });
@@ -333,7 +380,7 @@ in 运算符左侧是属性名(字符串)，右侧是对象。如果对象的自
     o.propertyIsEnumerable("toString"); // false
     for (p in o) console.log(p);        // 只会输出x, y, z， 不会输出toString
 
-有许多使用工具库给 Object.prototype 添加了新的方法或者属性。ES5 之前，这些新添加的方法不能定义为不可枚举，因此在 for/in 循环中可以枚举出来。为了避免这种情况，常使用下面 2 种方式过滤返回的属性:
+有许多使用工具库给 Object.prototype 添加了新的方法或者属性。ES5 之前，这些新添加的方法都是可枚举的（不能定义为不可枚举），因此在 for/in 循环中都可以枚举出来。为了避免这种情况，常使用下面 2 种方式过滤返回的属性:
 
     for (p in o) {
         if (!o.hasOwnProperty(p)) continue;
@@ -387,7 +434,7 @@ ES5 提供了 2 个函数用来枚举对象的属性名称
 
 ## 6.6 属性 getter 和 setter
 
-ES5 中，属性值可以用 getter 和 setter 方法来定义，这种属性叫做**存取器属性(accessor property)**。不同于我们常见的数据属性(data property)，数据属性只有一个简单值。
+ES5 中，属性值可以用 getter 和 setter 方法来定义，这种属性叫做**存取器属性(accessor property)**。它不同于我们常见的数据属性(data property)，数据属性只有一个简单值。
 
 当查询存取器属性的值时，JavaScript 调用 getter 方法（无参数），获取其返回值即可。当设置一个存取器属性的值时，JavaScript 调用 setter 方法，将赋值表达式右侧的值当作参数传入 setter。
 
@@ -499,7 +546,7 @@ ES5 定义了“属性描述符”property descriptor 的对象，用来代表�
     Object.getOwnPropertyDescriptor({}, "x")         // => undifined 属性不存在
     Object.getOwnPropertyDescriptor({}, "toString")  // => undefined 继承属性
 
-要想设置属性的特性，需要调用 Object.defineProperty()方法，传入要修改的对象，要创建或修改的属性的名称以及属性描述符对象。**Object.defineProperty()只能创建或修改自有属性，不能修改继承属性。**
+要想设置属性的特性，需要调用 [Object.defineProperty()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty) 方法，传入要修改的对象，要创建或修改的属性的名称以及属性描述符对象。**Object.defineProperty()只能创建或修改自有属性，不能修改继承属性。**
 
     var o = {};
     // 添加一个不可枚举的数据属性x，并赋值为1
@@ -534,7 +581,7 @@ ES5 定义了“属性描述符”property descriptor 的对象，用来代表�
     });
     o.x; // => 0
 
-要同时修改或者创建多个属性，可以使用 Object.defineProperties()方法。
+要同时修改或者创建多个属性，可以使用 [Object.defineProperties()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties) 方法。
 
     Object.defineProperties({}, {
         x: { value: 1, writable: true, configurable: true, enumerable: true },
@@ -562,7 +609,7 @@ Object.defineProperty()和 Object.defineProperties()方法必须遵循下列规�
 
     // 1. 如果对象是不可扩展的，则可以编辑已有的自有属性，但不能给它添加新属性。
     var o = { x: 1 };
-    Object.preventExtensions(o); // 将对象设置为不可扩展的
+    Object.preventExtensions(o);               // 将对象设置为不可扩展的
     Object.defineProperty(o, "x", {value: 2}); // 可以编辑已有的属性
     o.x // => 2
     // Uncaught TypeError: Cannot define property y, object is not extensible
@@ -651,7 +698,7 @@ Object.defineProperty()和 Object.defineProperties()方法必须遵循下列规�
 - 使用 new 创建的对象，原型是构造函数的 prototype 属性
 - 通过 Object.create()方法创建的对象，使用第一个参数作为原型
 
-ES5 中，将对象作为参数传入 Object.getPrototypeOf()可以查询它的原型。要检测一个对象是否是另一个对象的原型（或处于原型链中），需要使用 isPrototypeOf()方法。
+ES5 中，将对象作为参数传入 [Object.getPrototypeOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf) 可以查询它的原型。要检测一个对象是否是另一个对象的原型（或处于原型链中），需要使用 [isPrototypeOf()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isPrototypeOf) 方法。
 
     var p = { x: 1 };
     var o = Object.create(p);
@@ -691,11 +738,11 @@ ES5 中，将对象作为参数传入 Object.getPrototypeOf()可以查询它的�
 
 对象的可扩展性表示是否可以给对象添加新属性。所有内置对象和自定义对象都是可扩展的，宿主对象的可扩展性由 JavaScript 引擎定义。
 
-ES5 中可以使用 Object.isExtensible()方法来判断对象是否可扩展。要设置对象的可扩展性，需要使用 [Object.preventExtensions()方法](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions)，该方法只影响对象本身的可扩展性，原型对象不受印象。注意：**该方法一旦设置后，将无法逆转**。
+ES5 中可以使用 [Object.isExtensible()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isExtensible) 方法来判断对象是否可扩展。要设置对象的可扩展性，需要使用 [Object.preventExtensions()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions) 方法，该方法只影响对象本身的可扩展性，原型对象不受印象。注意：**该方法一旦设置后，将无法逆转**。
 
 可扩展性的目的是将对象“锁定”，以避免外界的干扰。通常和属性的可配置性和可写性配合使用。
 
-[Object.seal()方法](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal)除了可以将对象设置为可以扩展之外，还可以将对象的所有自有属性都设置为不可配置的。也就是说，不能给这个对象添加新属性，而且它已有的属性也不能删除或者配置。但是已经的可写属性依然可以设置新值。该方法同样不可逆，可以使用 Object.isSealed()方法来检查对象是否封闭。
+[Object.seal()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal) 方法除了可以将对象设置为可以扩展之外，还可以将对象的所有自有属性都设置为不可配置的。也就是说，不能给这个对象添加新属性，而且它已有的属性也不能删除或者配置。但是已经的可写属性依然可以设置新值。该方法同样不可逆，可以使用 [Object.isSealed()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isSealed) 方法来检查对象是否封闭。
 
     var o = { p: 1 };
     Object.seal(o);
@@ -704,7 +751,7 @@ ES5 中可以使用 Object.isExtensible()方法来判断对象是否可扩展。
     delete o.p; // => false 删除失败
     o.p;        // => 2
 
-[Object.freeze()方法](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)更严格地锁定对象，除了 seal 的操作之外，它可以将它自有的所有数据属性设置为只读(有 setter 方法的存取器属性不受影响)。使用 Object.isFrozen()来检测对象是否冻结。
+[Object.freeze()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze) 方法更严格地锁定对象，除了 seal 的操作之外，它可以将它自有的所有数据属性设置为只读(有 setter 方法的存取器属性不受影响)。使用 [Object.isFrozen()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isFrozen) 方法来检测对象是否冻结。
 
 上面 3 个方法都返回传入的对象，所以可以函数嵌套的方式调用它们。
 
@@ -714,7 +761,8 @@ ES5 中可以使用 Object.isExtensible()方法来判断对象是否可扩展。
 
 ## 6.9 序列化对象
 
-**对象序列化 serialization**是指将对象的状态转换成字符串，也可以将字符串还原成对象。  
+**对象序列化 serialization**是指将对象的状态转换成字符串，也可以将字符串还原成对象。
+
 ES5 提供了内置函数[JSON.stringify()][json.stringify]和[JSON.parse()][json.parse]来序列化和还原 JavaScript 对象。ES3 中可以从<http://json.org>引入 json2.js 模块来使用这些函数。
 
 [json.stringify]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
@@ -752,7 +800,8 @@ JSON.stringify()只能序列化对象可枚举的自有属性。[JSON.stringify(
 
 ### 6.10.1 toString() 方法
 
-[toString()方法](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString)返回一个表示调用这个方法的对象值的字符串。在需要将对象转换为字符串的时候，JavaScript 都会调用这个方法，比如使用“+”连接对象和字符串的时候。  
+[toString()方法](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/toString)返回一个表示调用这个方法的对象值的字符串。在需要将对象转换为字符串的时候，JavaScript 都会调用这个方法，比如使用“+”连接对象和字符串的时候。
+
 默认的 toString 方法返回的信息很少，很多类都带有自定义的 toString 方法。
 
 ### 6.10.2 toLocaleString() 方法
