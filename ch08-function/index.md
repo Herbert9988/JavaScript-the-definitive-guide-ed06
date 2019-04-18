@@ -95,7 +95,10 @@ ES 规范中，函数定义表达式可以出现在任意地方，但是，以�
 1. 作为函数
 1. 作为方法
 1. 作为构造函数
-1. 通过它们的 call()和 apply()方法间接调用
+1. 通过它们的 [call()][function.call] 和 [apply()][function.apply] 方法间接调用
+
+[function.call]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call
+[function.apply]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
 
 ### 8.2.1 函数调用
 
@@ -241,9 +244,6 @@ ASI(automatic semicolon insertion)相关的内容参见[这里][automatic-semico
 ### 8.2.4 间接调用
 
 JavaScript 函数也是对象，也可以包含方法。其中 2 个方法 [call()][function.call] 和 [apply()][function.apply] 方法可以用来间接地调用函数。这两个方法都允许显示指定调用所需的 this 值，也就是说任何函数都可以作为任意对象的方法来调用，哪怕这个函数不是那个对象的方法。两个方法都可以指定调用的实参。call()方法使用自有的实参列表作为函数的实参，apply()方法则要求以数组的形式传入参数。[8.7.3 节](<#873-call()-方法和-apply()-方法>)会有关这 2 个方法的详细讨论。
-
-[function.call]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call
-[function.apply]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
 
 ## 8.3 函数的实参和形参
 
@@ -623,4 +623,523 @@ JavaScript 是一种非常灵活的弱类型语言，有时适合编写实参类
 
     var outerArguments = arguments
 
+## 8.7 函数属性，方法和构造函数
+
+在 JavaScript 中，函数是值。对函数执行 typeof 运算会返回字符串 "function"，但是函数是 JavaScript 中的特殊对象，它们也可以拥有自己的属性和方法。甚至可以用 Function()构造函数来创建新的函数对象。
+
+### 8.7.1 length 属性
+
+在函数体内，arguments.length 表示传入函数的实参的个数。而函数本身的 length 属性是只读属性，表示函数形参的个数，也就是函数定义时给出的参数个数，通常也是在函数调用时期望传入的参数个数。
+
+以下例子用于检测实参个数是否形参的个数一致：
+
+    // 使用了arguments.callee，因此它不能在严格模式下工作
+    function check(args) {
+      var actual = args.length;
+      var expected = args.callee.length;
+      if (actual != expected)
+        throw Error("Excepted " + expected + " args; got " + actual);
+    }
+
+    function f(x, y, z) {
+      check(arguments);
+      return x + y + z;
+    }
+
+每一个函数都包含一个 prototype 属性，这个属性是指向一个对象的引用，这个对象称作原型对象 prototype object。每一个函数都包含不同的原型对象。当将函数用作构造函数的时候，新创建的对象会从原型对象上继承属性。
+
 ### 8.7.3 call() 方法和 apply() 方法
+
+通过 [call()][function.call] 和 [apply()][function.apply] 方法，我们可以把函数当作对象的方法来调用。call()和 apply()函数的第一个参数是要调用的函数的母对象，它是调用上下文，在函数体内通过 this 来获得对它的引用。要想以对象 o 的方法来调用函数 f()，可以这样使用：
+
+    f.call(o);
+    f.apply(o);
+
+每行代码和下面代码的功能类似（假设对象 o 中预先不存在名为 m 的属性）
+
+    o.m = f;
+    o.m();
+    delete o.m
+
+在 ES5 中，call()和 apply()方法的第一个参数都会变成 this 的值，哪怕传入的实参是原始值甚至是 null 或 undefined。在 ES3 和非严格模式，传入 null 或 undefined 都会被全局对象代替，而其他的原始值会被相应的包装对象 wrapper object 所替代。
+
+    "use strict"
+    function f() { console.log(this.x) }
+    // Uncaught TypeError: Cannot read property 'x' of null
+    f.apply(null)
+
+第一个调用上下文之后的所有参数就是要传入待调用函数的值。这些参数在 call()方法中用逗号隔开，而在 apply()方法中需要存放到数组（或类数组）中。例如：
+
+    f.call(o, 1, 2)
+    f.apply(o, [1, 2])
+
+下面的 trace()方法接收两个参数，一个对象和一个方法名，它将指定的方法替换成一个新方法，这种动态修改已有修改方法的做法也叫 monkey patching。
+
+    function trace(o, m) {
+      var original = o[m];
+      o[m] = function() {
+        console.log(new Date(), "Entering:", m);
+        var result = original.apply(this, arguments);
+        console.log(new Date(), "Exiting:", m);
+        return result;
+      };
+    }
+
+### 8.7.4 bind()方法
+
+[bind()][function.bind] 方法是 ES5 新增的方法，它的主要作用就是将函数绑定至某个对象。在 ES3 中也能很容易实现 bind()方法：
+
+[function.bind]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+
+    function bind(f, o) {
+      if (f.bind) return f.bind(o);
+      return function() {
+        f.apply(o, arguments);
+      };
+    }
+
+下面是一个 bind()方法的例子：
+
+    function f(y) {     // 待绑定的函数
+      return this.x + y;
+    }
+    var o = { x: 1 };   // 将要绑定的对象
+    var g = f.bind(o);  // 通过调用g(x)来调用o.f(x)
+    g(2)                // => 3
+
+bind()方法不仅仅可以将函数绑定到一个对象上，你还可以在第一个参数之后传入更多的实参，在调用绑定函数时，这些实参会按顺序绑定到函数的形参上。在函数式编程中，这是一种常见的编程技术，叫做偏函数应用 partial application，有时也叫柯里化 currying。例如：
+
+    var sum = function(x, y) {
+      return x + y;
+    };
+    // 创建一个类似sum的新函数，但this值绑定到null
+    // 并且第一个参数绑定到1，这个新函数期望只传入一个值
+    var succ = sum.bind(null, 1);
+    succ(2);  // => 3
+
+    function f(y, z) {
+      return this.x + y + z;
+    }
+    var g = f.bind({ x: 1 }, 2); // 绑定this和y
+    g(3)                         // => 6: this.x绑定到1，y绑定到2，z是传入的参数3
+
+我们也可以在 ES3 中实现 Function.bind()方法：
+
+    if (!Function.prototype.bind) {
+      Function.prototype.bind = function(o /*, args*/) {
+        var self = this,
+          boundArgs = arguments;
+        return function() {
+          var args = [];
+          for (var i = 1; i < boundArgs; i++) args.push(boundArgs[i]);
+          for (var i = 0; i < arguments.length; i++) args.push(arguments[i]);
+          return self.apply(o, args);
+        };
+      };
+    }
+
+ES5 定义的 bind()方法有一些属性是上述代码无法模拟的。首先，真正的 bind()方法返回的是一个函数，这个函数的 length 属性是绑定函数的形参个数减去绑定时传入的实参个数(第一个参数除外)，length 的值不能小于 0。
+
+    function add(x, y, z) {
+      return x + y + z;
+    }
+
+    var add2 = add.bind(null, 2, 3)
+    add2.length     // => 1
+
+再者，ES5 的 bind()方法也可以用作构造函数，但是在生产环境中不应该这样去使用。
+
+### 8.7.5 toString()方法
+
+函数的 [toString()][function.tostring] 方法返回一个字符串。大多数的函数的 toString()方法直接返回函数的完整源码。内置函数往往返回一个类似 [native code] 的字符串作为函数体。
+
+    // 自定义函数
+    var add = function(a,b) {return a + b}
+    // function(a,b) {return a + b}
+    add.toString()
+
+    // 内置函数
+    // function toString() { [native code] }
+    Object.prototype.toString.toString()
+
+    // 使用Function()构造函数创建的函数，会使用"anonymous"作为函数名
+    var f = new Function("x", "y", "return x*y;");
+    /**
+     * function anonymous(x,y
+     *  ) {
+     *   return x*y;
+     * }
+     */
+    f.toString()
+
+[function.tostring]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/toString
+
+### 8.7.6 Function()构造函数
+
+不管是通过函数表达式还是函数直接量表达式，函数的定义都要使用 function 关键字。但函数还可以 [Function()][function] 构造函数来定义，比如：
+
+[function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
+
+    var f = new Function("x", "y", "return x * y;");
+
+这一行代码创建一个新的函数，这个函数和通过下面代码定义的函数几乎等价：
+
+    var f = function(x, y) {return x*y;}
+
+Function()构造函数可以传入任意数量的字符串实参，最后一个实参所表示的文本就是函数体：他可以包含任意的 JavaScript 语句，每 2 条语句之间用分号分隔。传入构造函数的其他所有的实参字符串是指定函数的形参名字的字符串。如果定义的函数不包含任何参数，只需给构造函数简单地传入一个字符串(函数体)即可。
+
+Function()构造函数创建的是一个匿名函数，因此不需要传入实参指定函数名。
+
+关于 Function()构造函数有几点需要特别注意：
+
+- Function()构造函数允许 JavaScript 在运行时动态地创建并编译函数。
+- 每次调用 Function()构造函数都会解析函数体，并创建新的函数对象。如果是在一个循环体内或者多次调用的函数中执行这个构造函数，执行效率会受影响。相比之下，**循环中的嵌套函数和函数定义表达式则不会每次执行时都重新编译**(但是会生成多个函数)。
+- 最后一点，也是关于 Function()构造函数非常重要的一点，就是它所创建的函数并不是使用词法作用域，相反，函数体的代码的编译总是会在顶层函数(全局作用域)执行，正如下面代码所示：
+
+      var scope = "global";
+      function constructFunction() {
+        var scope = "local";
+        return new Function("return scope");
+      }
+
+      // 使用全局作用域
+      constructFunction(); // => global
+
+使用 Function()构造函数构建的函数无法被现代 js 引擎优化，容易带来性能问题。在实际编程中，应该尽量避免使用。
+
+### 8.7.7 可调用的对象
+
+可调用对象 callable object 是一个对象，可以在函数调用表达式中调用这个对象。所有的函数都是可调用的，但是并非所有的可调用对象都是函数。
+
+有两种情况的可调用对象不是函数。第一种，IE8 浏览器及之前版本实现的客户端方法(比如 Window.alert()和 Document.getElementById)，使用了可调用的宿主对象，而不是内置的函数对象。IE9 把它们修改成了真正的函数对象，因此这类可调用对象越来越罕见了。
+
+另外一个常见的可调用对象就是正则表达式 RegExp。比起调用它的 exec()方法，你可以更加便捷地直接调用正则表达式对象。在 JavaScript 中，这是一个彻头彻尾的非标准特性。代码最好不要对可调用的 RegExp 对象有太多依赖，这个特性在未来可能会废弃并删除。对 RegExp 执行 typeof 运算，有的浏览器返回"function"，有的浏览器返回"object"。
+
+如果想检测一个对象是否是真正的函数对象(并且具有函数方法)，可以检测它的 class 属性。比如：
+
+    function isFunction(x) {
+      return Object.prototype.toString.call(x) === "[object Function]";
+    }
+
+## 8.8 函数式编程
+
+JavaScript 并非函数式编程语言，但在 JavaScript 中可以像操控对象一样操控函数，因此可以在 JavaScript 中应用函数式编程技术。ES5 的数组方法（比如 map 和 reduce）就特别适合函数式编程风格。接下来的几节将会介绍 JS 中的函数式编程技术，你将体会到 JS 函数非常强大，而不仅仅是学习一种编程风格而已。
+
+### 8.8.1 使用函数处理数组
+
+假设有一个数组，其元素都是数字，我们想要计算这些元素的平均值和标准差。若使用非函数式编程风格的话，代码会是这样：
+
+    // 计算平均值
+    var data = [1, 1, 3, 5, 5];
+    var total = 0;
+    for (var i = 0; i < data.length; i++) {
+      total += data[i];
+    }
+    var mean = total / data.length;
+
+    // 计算标准差
+    total = 0;
+    for (var i = 0; i < data.length; i++) {
+      var deviation = data[i] - mean;
+      total += deviation * deviation;
+    }
+    var stddev = Math.sqrt(total / (data.length - 1));
+
+可以使用数组的 map()和 reduce()方法来实现同样的计算：
+
+    var data = [1, 1, 3, 5, 5];
+    var mean =
+      data.reduce(function(accumulator, currentValue) {
+        return accumulator + currentValue;
+      }) / data.length;
+
+    var stddev = Math.sqrt(
+      data.map(function(item) {
+          return item - mean;
+        }).reduce(function(a, c) {
+          return a + c * c;
+        }, 0) / (data.length - 1)         // 这里的reduce方法中，必须设置初始值为0
+    );
+
+还可以使用下面这种实现，看起来更加简洁：
+
+    var sum = function(x, y) {return x + y;};
+    var square = function(x) {return x * x;};
+
+    var mean = data.reduce(sum) / data.length;
+    var deviations = data.map(function(x) {
+      return x - mean;
+    });
+    var stddev = Math.sqrt(
+      deviations.map(square).reduce(sum) / (data.length - 1));
+
+在 ES3 中，数组并不包含 map 和 reduce 方法。我们可以自定义这两个函数：
+
+    var map = Array.prototype.map
+      ? function(a, f) {
+          return a.map(f);
+        }
+      : function(a, f) {
+          var result = [];
+          for (var i = 0, len = a.length; i < len; i++) {
+            // result.push(f(a[i], i, a));
+            if (i in a) {
+              result[i] = f.call(null, a[i], i, a);
+            }
+          }
+          return result;
+        };
+
+    var reduce = Array.prototype.reduce
+      ? function(a, f, initial) {
+          if (arguments.length > 2) return a.reduce(f, initial);
+          return a.reduce(f);
+        }
+      : function(a, f, initial) {
+          // 这个算法来自ES5规范
+          var i = 0,
+            len = a.length,
+            accumulator;
+
+          // 以传入的初始值开始，否则第一个值取自a
+          if (arguments.length > 2) {
+            accumulator = initial;
+          } else { // 找到数组中第一个已定义的索引
+            if (len === 0) throw TypeError();
+            while (i < len) {
+              if (i in a) {
+                accumulator = a[i++];
+                break;
+              }
+              i++;
+            }
+            if (i === len) throw TypeError();
+          }
+
+          // 对数组中剩下的元素依次调用f()
+          while (i < len) {
+            if (i in a) accumulator = f.call(undefined, accumulator, a[i], i, a);
+            i++;
+          }
+
+          return accumulator;
+        };
+
+使用以上自定义的函数来重写求平均值和标准差的代码就变成下面这样：
+
+    var data = [1, 1, 3, 5, 5];
+    var sum = function(x, y) {
+      return x + y;
+    };
+    var square = function(x) {
+      return x * x;
+    };
+    var mean = reduce(data, sum) / data.length;
+    var deviations = map(data, function(x) {
+      return x - mean;
+    });
+    var stddev = Math.sqrt(
+      reduce(map(deviations, square), sum) / (data.length - 1)
+    );
+
+### 8.8.2 高阶函数
+
+所谓高阶函数 high-order function 就是操作函数的函数，它接收一个或多个函数作为参数，并返回一个新函数，来看这个例子：
+
+    // 这个高阶函数返回一个新函数，这个新函数将它的实参传入f()
+    // 并返回f的返回值的逻辑非
+    function not(f) {
+      return function() {
+        return !f.apply(this, arguments);
+      };
+    }
+
+    var even = function(x) {
+      return x % 2 === 0;
+    };
+
+    var odd = not(even);
+    [1, 1, 3, 5, 5].every(odd);
+
+下面是一个 mapper 函数的例子，用到了上一节中的 map 函数。
+
+    // 所返回的函数的参数应当是一个实参数组，并对每个数组元素执行函数f()
+    // 并返回所有计算结果组成的数组。
+    function mapper(f) {
+      return function(a) {
+        return map(a, f);
+      };
+    }
+
+    var increment = function(x) {
+      return x + 1;
+    };
+    var incrementer = mapper(increment);
+    incrementer([1, 2, 3]); // => [2, 3, 4]
+
+这里是一个更常见的例子，它接收 2 个参数 f 和 g，并返回一个新的函数用以计算 f(g()):
+
+    // 返回的函数h()将它所有的实参传入g()，然后将g的返回值传入f()
+    // 调用f()和g()时的this值和调用h()时的this值是同一个值。
+    function compose(f, g) {
+      return function() {
+        return f.call(this, g.apply(this, arguments));
+      };
+    }
+    var sum = function(x, y) {
+      return x + y;
+    };
+    var square = function(x) {
+      return x * x;
+    };
+    var squareOfSum = compose(square, sum);
+    squareOfSum(2, 3); // => 25
+
+后续两节讨论的 partial()和 memorize()函数，是两个非常重要的高阶函数。
+
+### 8.8.3 不完全函数
+
+利用不完全函数 Partial Application of Functions，可以编写一些有意思的代码，利用已有的函数来编写新的函数。先看一些基础的工具函数:
+
+    // 将类数组对象转换成对象
+    function array(a, n) {
+      return Array.prototype.slice.call(a, n || 0);
+    }
+
+    // 这个函数按从左往右的顺序传递实参
+    function partialLeft(f /*, ...  */) {
+      var args = arguments;             // 保存外部实参数组
+      return function() {
+        var a = array(args, 1);         // 添加外部实参，除去第一个函数f
+        a = a.concat(array(arguments)); // 添加内部实参
+        return f.apply(this, a);        // 基于上述2步处理后的实参列表调用函数f
+      };
+    }
+
+    // 这个函数按从右往左的顺序传递实参
+    function partialRight(f /*, ... */) {
+      var args = arguments;
+      return function() {
+        var a = array(arguments);
+        a = a.concat(array(args, 1));
+        return f.apply(this, a);
+      };
+    }
+
+    // 这个函数的实参列表被用作模板
+    // 实参列表中的undefined值都被填充
+    function partial(f /*, ... */) {
+      var args = arguments;
+      return function() {
+        var a = array(args, 1);
+        for (var i = 0, j = 0, len = a.length; i < len; i++) {
+          if (a[i] === undefined) {
+            a[i] = arguments[j++];
+          }
+        }
+        a = a.concat(array(arguments, j));
+        return f.apply(this, a);
+      };
+    }
+
+    var f = function(x, y, z) {
+      return x * (y - z);
+    };
+
+    partialLeft(f, 2)(3, 4);         // => -2: 等价f(2, 3, 4)
+    partialRight(f, 2)(3, 4);        // =>  6: 等价f(3, 4, 2)
+    partial(f, undefined, 2)(3, 4);  // => -6: 等价f(3, 2, 4)
+
+下面是一些通过已有函数来编写新的函数的例子：
+
+    var increment = partialLeft(sum, 1);        // 等价sum(1, x)
+    var cuberoot = partialRight(Math.pow, 1/3); // 等价Math.pow(x, 1/3)
+    String.prototype.first = partial(String.prototype.charAt, 0);
+    String.prototype.last = partial(String.prototype.substr, -1, 1);
+
+当将不完全调用和其他高阶函数整合在一起的时候，事情变得有意思了。比如，上一节中定义的 not()函数，我们还可以这样写：
+
+    var opposite = function(x) {return !x};
+    var not = partialLeft(compose, opposite);
+    var even = function(x) {
+      return x % 2 === 0;
+    };
+
+    var isNumber = not(isNaN);
+    var odd = not(even);
+    odd(5) // => 5: 等价于opposite(even(5));
+
+思考一下，我们如果把 partialLeft 替换成 partialRight 会发生什么？
+
+    var f = partialRight(compose, opposite);
+    var f2 = f(even);
+    f2(5) // 想想这里的表达式是什么？
+
+f2(5)实际上会转换成 even(opposite(5))。opposite(5)返回 false，调用 even 方法时会把 false 值转换成数字，变成 0。0 是偶数，因此 f2(5)会返回 true。
+
+我们现在可以使用 partial application 来重写我们的求均值和标准差的代码了，这是一种存粹的函数式编程风格：
+
+    var data = [1, 1, 3, 5, 5];
+    var sum = function(x, y) {
+      return x + y;
+    };
+    var product = function(x, y) {
+      return x * y;
+    };
+    var neg = partial(product, -1);                    // product(-1, y)
+    var square = partial(Math.pow, undefined, 2);      // Math.pow(x, 2)
+    var sqrt = partial(Math.pow, undefined, 0.5);      // Math.pow(x, .5)
+    var reciprocal = partial(Math.pow, undefined, -1); // Math.pow(x, -1)
+
+    var mean = product(reduce(data, sum), reciprocal(data.length));
+    var stddev = sqrt(
+      product(
+        reduce(
+          map(
+            data,
+            compose(
+              square,
+              // 为了描述方便，称下面这个函数叫dev函数
+              // dev(x)等价于sum(-mean, x), 也就是x-mean
+              // x为data中的元素，neg(mean)就是-mean
+              partial(sum, neg(mean))
+            ) // 等价square(dev(x))
+          ),
+          sum // 对元素和均值的差的平方求和
+        ),
+        reciprocal(sum(data.length, -1))
+      )
+    );
+
+### 8.8.4 记忆化
+
+在 8.4.1 节中定义了一个阶乘函数，它可以将上次的计算结果缓存起来。在函数式编程中，这种缓存技巧叫做记忆化 memorization。下面的代码展示了一个高阶函数，memorize()接收一个函数作为实参，并返回带有记忆能力的函数。
+
+    function memorize(f) {
+      var cache = {};
+      return function() {
+        var key = arguments.length + Array.prototype.join.call(arguments, ",");
+        if (key in cache) return cache[key];
+        else return (cache[key] = f.apply(this, arguments));
+      };
+    }
+
+memorize()方法创建一个新的对象，这个对象被当作缓存(的宿主)并赋值给一个局部变量，因此对于这个返回函数来说，它是私有的(在闭包中)。
+
+    // Return the Greatest Common Divisor of two integers, using the Euclidian
+    // algorithm: http://en.wikipedia.org/wiki/Euclidean_algorithm
+    function gcd(a, b) {
+      // Type checking for a and b has been omitted
+      var t; // Temporary variable for swapping values
+      if (a < b) (t = b), (b = a), (a = t); // Ensure that a >= b
+      while (b != 0) (t = b), (b = a % b), (a = t); // This is Euclid's algorithm for GCD
+      return a;
+    }
+    var gcdmemo = memoize(gcd);
+    gcdmemo(85, 187); // => 17
+    // Note that when we write a recursive function that we will be memoizing,
+    // we typically want to recurse to the memoized version, not the original.
+    var factorial = memoize(function(n) {
+      return n <= 1 ? 1 : n * factorial(n - 1);
+    });
+    factorial(5); // => 120. Also caches values for 4, 3, 2 and 1.
