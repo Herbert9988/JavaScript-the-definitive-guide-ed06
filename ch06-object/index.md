@@ -74,10 +74,12 @@ console.log(
 
 关键字 new 后面跟随一个函数调用。这里函数称作构造函数 _constructor_，用以初始化一个新创建的对象。Javascript 的原生类型都包含内置构造函数。
 
-    var o = new Object()
-    var a = new Array()
-    var d = new Date()
-    var r = new RegExp()
+```javascript
+var o = new Object();
+var a = new Array();
+var d = new Date();
+var r = new RegExp();
+```
 
 ### 6.1.3 原型
 
@@ -186,7 +188,7 @@ console.log(obj);
     Wed Apr 10 2019 22:50:01 GMT+0800 (中国标准时间): 1554907801674,
     null: null, undefined: undefined, NaN: NaN}
 
-可以看到：输出结果中，2 个 Object 对象被合并成一个了(2 个 function 对象同理)。这是因为它们使用的都是 Object.prototype.toString()方法来转换为字符串，该方法默认返回[object Object]。 由于 key 出现了重复，前一个的值就被后一个覆盖了。
+可以看到：输出结果中，2 个 Object 对象被合并成了一个属性(2 个 function 对象同理)。这是因为它们使用的都是 Object.prototype.toString()方法来转换为字符串，该方法默认返回[object Object]。 由于 key 出现了重复，前一个的值就被后一个覆盖了。
 
 }})
 
@@ -283,7 +285,7 @@ null.a = 1;
 
 - o 中的属性 p 是只读的：不能给只读属性重新赋值（defineProperty()方法中属性的 configurable 为 true 的时候例外）
 - o 中的属性 p 是继承的，且它是只读的：不能通过同名自有属性覆盖只读的继承属性
-- o 中不存在自有属性 p：o 没有使用 setter 方法继承属性 p，并且 o 的可扩展性 extensible attribute 是 false。如果 o 中不存在 p，而且没有 setter 方法可供调用，则 p 一定会添加至 o 中。但是如果 o 不是可扩展的，那么在 o 中不能定义新属性。
+- o 中不存在自有属性 p：o 没有使用 setter 方法继承属性 p，并且 o 的可扩展标记 extensible 是 false。如果 o 中不存在 p，而且没有 setter 方法可供调用，则 p 一定会添加至 o 中。但是如果 o 不是可扩展的，那么在 o 中不能定义新属性。
 
 ({{
 
@@ -301,14 +303,16 @@ var o = Object.defineProperty({}, "p", {
 });
 /**
  * 赋值失败，但不报错。
- * 严格模式下会报错：Uncaught TypeError: Cannot assign to read only property 'p' of object '#<Object>'
+ * 严格模式下会报错：Uncaught TypeError:
+ * Cannot assign to read only property 'p' of object '#<Object>'
  */
 o.p = 1;
 o.p; // => 0 还是原来的值
 Object.defineProperty(o, "p", { value: 2 }); // 修改成功
 o.p; // => 2
 
-var pro = Object.defineProperty({}, "p", { value: 0, writable: false }); // 设置pro的p属性为只读
+// 设置pro的p属性为只读
+var pro = Object.defineProperty({}, "p", { value: 0, writable: false });
 var o = Object.create(pro); // pro是o的原型
 o.p = 1; // 赋值失败，但不报错。严格模式下报类型错误
 o.p; // => 0
@@ -330,7 +334,8 @@ o.value = 0;
 Object.preventExtensions(o);
 /**
  * 赋值失败，但不报错。
- * 严格模式下会报错：Uncaught TypeError: Cannot add property p, object is not extensible
+ * 严格模式下会报错：Uncaught TypeError:
+ * Cannot add property p, object is not extensible
  */
 o.p = 5;
 o.p2 = 10; // p2是继承属性，赋值成功
@@ -356,7 +361,7 @@ delete o.p;
 p.x; // => 1  这种不严谨的代码可能引起内存泄漏。在销毁对象的时候，需要尤其注意。
 ```
 
-delete 只能删除自有属性，不能删除继承属性。要删除继承属性必须从定义这个属性的原型对象上删除它，这会影响到所有继承自这个原型的对象。
+delete 只能删除自有属性，不能删除继承属性。要删除继承属性必须从定义这个属性的原型对象上删除它，但这会影响到所有继承自这个原型的对象。
 
 ```javascript
 var p = { x: 1 };
@@ -404,10 +409,11 @@ delete x;
 在严格模式中，必须显示指定对象以及属性，否则会报语法错误
 
 ```javascript
-    "use strict"
-    this.x = 1
-    delete x      // Uncaught SyntaxError: Delete of an unqualified identifier in strict mode.
-    delete this.x // 正常工作
+"use strict"
+this.x = 1
+// Uncaught SyntaxError: Delete of an unqualified identifier in strict mode.
+delete x
+delete this.x // 正常工作
 ```
 
 ## 6.4 检测属性
@@ -483,20 +489,22 @@ for (p in o) console.log(p); // 只会输出x, y, z， 不会输出toString
 
 ```javascript
 for (p in o) {
-  if (!o.hasOwnProperty(p)) continue;
+  if (!o.hasOwnProperty(p)) continue; // 忽略继承属性
 }
 for (p in o) {
-  if (typeof o[p] === "function") continue;
+  if (typeof o[p] === "function") continue; // 忽略方法
 }
 ```
 
-以下是一些有用的工具函数来操控对象的属性
+以下是一些有用的工具函数来操控对象的属性：
+
+例 6-2. 枚举属性的对象工具函数
 
 ```javascript
 /**
  * 把base中的可枚举属性赋值到o中，并返回o。
  * 如果o和base中含有同名属性，则覆盖o中的属性。
- * 这个函数不处理getter和setter以及属性复制。
+ * 这个函数不处理getter和setter以及复制属性描述符。
  */
 function extend(o, base) {
   for (p in base) {
@@ -508,7 +516,7 @@ function extend(o, base) {
 /**
  * 把base中的可枚举属性赋值到o中，并返回o。
  * 如果o和base中含有同名属性，o中的属性不受影响。
- * 这个函数不处理getter和setter以及属性复制。
+ * 这个函数不处理getter和setter以及复制属性描述符。
  */
 function merge(o, base) {
   for (p in base) {
@@ -649,7 +657,7 @@ ES5 可以标识属性可写，可枚举，和可配置的特性，ES3 中无法
 1. 可枚举型 enumerable
 1. 可配置性 configurable
 
-ES5 定义了“属性描述符”property descriptor 的对象，用来代表那 4 个特性。通过调用 Object.getOwnPropertyDescriptor()可以获取某个对象特定属性的属性描述符。
+ES5 定义了"属性描述符"(property descriptor)对象，用来代表那 4 个特性。通过调用 Object.getOwnPropertyDescriptor()可以获取某个对象特定属性的属性描述符。
 
 ```javascript
 // => {get: ƒ, set: ƒ, enumerable: true, configurable: true}
@@ -727,6 +735,8 @@ Object.defineProperty()和 Object.defineProperties()方法必须遵循下列规�
 1. 如果数据属性是不可配置的，则不能将它转换成存取器属性。
 1. 如果数据属性是不可配置的，则不能将它的可写性从 false 修改为 true，但是可以从 true 修改为 false。
 1. 如果数据属性是不可配置且不可写的，则不能修改它的值。然而可配置但不可写属性的值是可以修改的（实际上是先标记为可写，修改它的值之后，转换成不可写的）。
+
+({{
 
 以下是一些例子和说明
 
@@ -808,7 +818,9 @@ Object.defineProperty(o2, "x", { value: 1 }); // OK
 o2.x; // => 1
 ```
 
-现在，我们的 extend 方法不再简单复制名和值，还可以包含属性的特性了
+}})
+
+现在，我们的 extend 方法不再简单复制名和值，还可以包含属性描述符。
 
 ```javascript
 /**
@@ -861,7 +873,8 @@ Object.getPrototypeOf(p) === Object.prototype;
 
 ### 6.8.2 类属性
 
-对象类属性 class attribute 是一个字符串，用来表示对象的类型信息。ES3 和 ES5 中没有设置该属性的方法，并且只有一种间接的方法来查询它。  
+对象类属性 class attribute 是一个字符串，用来表示对象的类型信息。ES3 和 ES5 中没有设置该属性的方法，并且只有一种间接的方法来查询它。
+
 默认的 toString()方法(继承自 Object.prototype)返回[Object *class*]格式的字符串，这里的 _class_ 就是我们要找的类属性的值。
 
 ```javascript
@@ -894,7 +907,7 @@ ES5 中可以使用 [Object.isExtensible()](https://developer.mozilla.org/en-US/
 
 可扩展性的目的是将对象“锁定”，以避免外界的干扰。通常和属性的可配置性和可写性配合使用。
 
-[Object.seal()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal) 方法除了可以将对象设置为可以扩展之外，还可以将对象的所有自有属性都设置为不可配置的。也就是说，不能给这个对象添加新属性，而且它已有的属性也不能删除或者配置。但是已经的可写属性依然可以设置新值。该方法同样不可逆，可以使用 [Object.isSealed()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isSealed) 方法来检查对象是否封闭。
+[Object.seal()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal) 方法除了可以将对象设置为不可扩展之外，还可以将对象的所有自有属性都设置为不可配置的。也就是说，不能给这个对象添加新属性，而且它已有的属性也不能删除或者配置。但是已经的可写属性依然可以设置新值。该方法同样不可逆，可以使用 [Object.isSealed()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isSealed) 方法来检查对象是否封闭。
 
 ```javascript
 var o = { p: 1 };
