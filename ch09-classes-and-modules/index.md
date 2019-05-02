@@ -10,20 +10,18 @@
 
 在 JavaScript 中，一个类的所有实例对象都从同一个原型对象继承属性。因此，原型对象是类的核心特征。在例 6-1 中定义了 inherit()函数，整个函数返回一个新创建的对象，这个对象继承自某个原型对象。如果定义一个原型对象，然后使用 inherit()创建继承自它的对象，我们就定义了一个 JavaScript 类。通常来说，类的实例还需要进一步初始化，常规做法是定义一个函数来创建并初始化这个新的实例对象。正如例 9-1 所示：它给一个表示值的范围的类定义了原型对象，还定义了一个工厂函数来创建并初始化这个类的新实例对象。
 
-注：_本节中的专有名词 **“范围对象”** 表示通过下例中的 range 函数创建的对象。_
-
 例 9-1：一个简单的 JavaScript 类
 
 ```javascript
 // range.js: 表示值的范围的类。
 
-// 这是一个工厂方法，返回一个新的范围对象。
+// 这是一个工厂方法，返回一个新的Range对象。
 function range(from, to) {
   // 使用inherit()方法来创建对象，这个对象继承自下面定义的原型对象。
-  // 原型对象存储在函数的一个属性中，它定义了所有“范围对象”所共享的方法（行为）。
+  // 原型对象存储在函数的一个属性中，它定义了所有“Range对象”所共享的方法（行为）。
   var r = inherit(range.methods);
 
-  // 存储这个新的范围对象的开始点和结束点（状态）
+  // 存储这个新的Range对象的开始点和结束点（状态）
   // 这两个属性是非继承属性，对每个对象来说，它们都是唯一的
   r.from = from;
   r.to = to;
@@ -32,7 +30,7 @@ function range(from, to) {
   return r;
 }
 
-// 这个原型对象定义的方法可以被所有的范围对象继承。
+// 这个原型对象定义的方法可以被所有的Range对象继承。
 range.methods = {
   // 如果x在范围中返回true，否则返回false
   // 这个方法可适用于数字，文本和日期
@@ -55,14 +53,14 @@ range.methods = {
   }
 };
 
-// 下面是一些使用范围对象的例子
-var r = range(1, 3); // 创建一个范围对象
+// 下面是一些使用Range对象的例子
+var r = range(1, 3); // 创建一个Range对象
 r.includes(2); // => true: 2 is in the range
 r.foreach(console.log); // 打印1 2 3
 console.log(r); // (1...3)
 ```
 
-上例的代码定义了一个工厂函数 range()来创建新的范围对象，其中有一些值得注意的事情。首先，我们使用了 range()函数的 range.methods 属性来便捷地存储定义类的原型对象。把原型对象放在这里并没有什么特别的，也不是什么习惯用法。其次，range()函数在每一个范围对象上定义了 from 和 to 属性。这些属性表示每个对象自身独一无二的状态（起始点和结束点），它们是非共享的，也是非继承的。最后，在 range.methods 中定义的共享并可继承的方法都使用了 from 和 to 属性。为了引用它们，我们使用了 this 关键字来指代调用这个方法的对象。我们经常见到，this 的这种用法是类方法的一个基本特征。
+上例的代码定义了一个工厂函数 range()来创建新的 Range 对象，其中有一些值得注意的事情。首先，我们使用了 range()函数的 range.methods 属性来便捷地存储定义类的原型对象。把原型对象放在这里并没有什么特别的，也不是什么习惯用法。其次，range()函数在每一个 Range 对象上定义了 from 和 to 属性。这些属性表示每个对象自身独一无二的状态（起始点和结束点），它们是非共享的，也是非继承的。最后，在 range.methods 中定义的共享并可继承的方法都使用了 from 和 to 属性。为了引用它们，我们使用了 this 关键字来指代调用这个方法的对象。我们经常见到，this 的这种用法是类方法的一个基本特征。
 
 ## 9.2 类和构造函数
 
@@ -76,7 +74,7 @@ console.log(r); // (1...3)
 // 这是一个初始化新Range对象的构造函数
 // 注意它不创建也不返回这个对象，仅仅是初始化
 function Range(from, to) {
-  // 存储这个新的范围对象的开始点和结束点（状态）
+  // 存储这个新的Range对象的开始点和结束点（状态）
   // 这两个属性是非继承属性，对每个对象来说，它们都是唯一的
   this.from = from;
   this.to = to;
@@ -104,8 +102,8 @@ Range.prototype = {
   }
 };
 
-// 下面是一些使用范围对象的例子
-var r = new Range(1, 3); // 创建一个范围对象
+// 下面是一些使用Range对象的例子
+var r = new Range(1, 3); // 创建一个Range对象
 r.includes(2); // => true: 2 is in the range
 r.foreach(console.log); // 打印1 2 3
 console.log(r); // 打印(1...3)
@@ -125,7 +123,7 @@ console.log(r); // 打印(1...3)
 
 正如我们所见，原型对象是一个类最根本的标识：当且仅当两个对象继承自同一个原型对象时，它们才是同一个类的实例。初始化新对象状态的构造函数不能作为类的标识：两个构造函数的 prototype 属性可能指向同一个原型对象。那么这两个构造函数都可以用于创建同一个类的实例。
 
-即使构造函数不像原型那样基本，构造函数也可以作为类的“门面”(public face)。最明显的就是，构造函数的名称通常被用作类的名称。比如，我们说 Range()构造函数创建 Range 对象。然而，更基本的是，构造函数和 instanceof 运算符一起使用，可以用来检测一个对象是否属于某个类。假设我们有一个对象 r，想知道它是否是 Range 对象，我们可以这样写：
+即使构造函数不像原型那样基本，构造函数也可以作为类的“门面”(public face)。最明显的就是，构造函数的名称通常被用作类的名称。比如，我们说 Range()构造函数创建 Range 对象。然而，更基本的是，构造函数和 _instanceof_ 运算符一起使用，可以用来检测一个对象是否属于某个类。假设我们有一个对象 r，想知道它是否是 Range 对象，我们可以这样写：
 
 ```javascript
 // 如果r继承自Range.prototype，返回true
@@ -197,7 +195,7 @@ Range.prototype.toString = function() {
 
 ## 9.3 JavaScript 中 Java 风格的类
 
-如果你使用过 Java 或这类似的强类型面向对象编程语言，你可能会习惯性地思考以下 4 种类成员：
+如果你使用过 Java 或类似的强类型面向对象编程语言，你可能会习惯性地思考以下 4 种类成员：
 
 1. 实例变量  
    这些是每个实例的属性或变量，用来保存单个对象的状态。
@@ -208,14 +206,14 @@ Range.prototype.toString = function() {
 1. 类方法  
    这些是与类（而不是类的实例）关联的方法，无法通过类的实例调用这些方法。
 
-JavaScript 与 Java 有一点不同：它的函数也是值，所以方法和变量之间并没有很严格的区别。如果一个属性的值是函数，则该属性定义方法，否则，它就只是一个普通的变量。尽管存在这种差异，我们仍然可以在 JavaScript 种模拟 Java 的 4 种类成员。在 JavaScript 种，任何类的定义都涉及 3 个不同的对象（参见图 9-1），这 3 个对象的属性就像不同类的类成员一样：
+JavaScript 与 Java 有一点不同：它的函数也是值，所以方法和变量之间并没有很严格的区别。如果一个属性的值是函数，则该属性定义了一个方法，否则，它就只是一个普通的变量。尽管存在这种差异，我们仍然可以在 JavaScript 中模拟 Java 的 4 种类成员。在 JavaScript 种，任何类的定义都涉及 3 个不同的对象（参见图 9-1），这 3 个对象的属性就像不同类的类成员一样：
 
 - 构造函数对象  
   我们看到，构造函数（对象）为 JavaScript 类定义了一个名字。任何添加到这个构造函数对象的属性都是类变量或类方法（取决于属性值是否为函数）。
 - 原型对象  
   此对象的属性会被类的所有实例所继承，其值为函数的属性的行为类似于类的实例方法（可以在类的实例中直接调用该方法）。
 - 实例对象  
-  类的每个实例本身都是一个对象，直接在实例上定义的属性不会被任何其他实例所共享。在实例上定义的非函数属性的行为表现和类的实例变量一样。
+  类的每个实例本身都是一个对象，直接在实例上定义的属性不会被任何其他实例所共享。在实例上定义的非函数属性的行为和类的实例变量一样。
 
 我们可以将 JavaScript 中的类定义过程简化为一个三步算法：
 
@@ -223,7 +221,7 @@ JavaScript 与 Java 有一点不同：它的函数也是值，所以方法和变
 1. 在构造函数的原型对象上定义实例方法
 1. 在构造函数中定义类变量和类属性
 
-我们甚至可以将此算法实现为一个简单的 defineClass()方法（用到了例 6-2 中定义并在例 8-3 中完善的 extend()方法）：
+我们甚至可以将此算法实现为一个简单的 defineClass()方法（用到了例 6-2 中定义，并在例 8-3 中完善的 extend()方法）：
 
 ```javascript
 /**
@@ -267,12 +265,12 @@ var SimpleRange = defineClass(
 ```javascript
 /**
  * Complex.js:
- * 这个文件定义一个复数类来表示复数。
- * 回想一下，一个复数是一个实数和一个虚数的和，而虚数i是-1的平方根
+ * 这个文件定义一个Complex类来表示复数。
+ * 回想一下：一个复数是一个实数和一个虚数的和，而虚数i是-1的平方根
  */
 
 /**
- * 这个构造函数为每个它创建的实例对象定义了实例变量r和i。
+ * 这个构造函数为其创建的每个实例对象定义了实例变量r和i。
  * 这两个实例变量保存了复数的实部和虚部：它们是对象的状态。
  */
 function Complex(real, imaginary) {
@@ -282,7 +280,7 @@ function Complex(real, imaginary) {
 }
 
 /**
- * 类的实例方法被定义为原型对象的属性（属性值为函数）。
+ * 类的实例方法被定义为原型对象的属性（值为函数）。
  * 此处定义的方法可以被所有的实例对象继承，这些方法提供类的共享行为。
  * 注意JavaScript的实例方法必须使用this关键字去访问实例变量。
  */
@@ -358,7 +356,7 @@ Complex._format = /^\{([^,]+),([^}]+)\}$/;
 // 使用构造函数创建一个新的对象
 var c = new Complex(2, 3);
 // 使用c的实例变量
-var d = new Complex(c.r, c.i);
+var d = new Complex(c.i, c.r);
 // 使用实例方法
 c.add(d).toString(); // => {5,5}
 
@@ -368,7 +366,7 @@ Complex.parse(c.toString()) // 把c转换成字符串，再解析成对象
   .equals(Complex.ZERO); // =>true: 始终为0
 ```
 
-虽然 JavaScript 类可以模拟 Java 风格的类成员，但还有一些重要的 Java 功能是 JavaScript 无法支持的。首先，Java 类的实例方法中，实例变量可以直接当作局部变量使用，不需要使用 this 关键字。JavaScript 不能这么做，但是你可以使用 with 语句实现类似的效果（但不建议这么做）：
+虽然 JavaScript 类可以模拟 Java 风格的类成员，但还有一些重要的 Java 功能是 JavaScript 无法支持的。首先，Java 类的实例方法中，实例变量可以直接当作局部变量使用——无须 this 做前缀。JavaScript 不能这么做，但是你可以使用 with 语句实现类似的效果（但不建议这么做）：
 
 ```javascript
 Complex.prototype.toString = function() {
@@ -378,7 +376,7 @@ Complex.prototype.toString = function() {
 };
 ```
 
-Java 允许将变量声明为 final 以指示它们是常量，并且它允许将字段和方法声明为 provate，以指定它们对实现类是私有的，并且不应该对该类的用户（类外部的调用者）可见。JavaScript 没有这些关键字，例 9-3 使用命名约定(typographical conventions)来给出提示：一些属性（名称用大写字母表示）不应该被修改，另一些属性（名称以下划线开头）不应该在类的外部使用。我们将在本章后面回到这两个主题：私有变量可以使用闭包的局部变量模拟(\$9.6.6)，ES5 中可以使用常量属性(\$9.8.2)。
+Java 允许将变量声明为 final 以表明它们是常量，并且它允许将字段和方法声明为 private，以指定它们是实现类私有的，并且不应该对该类的用户（类外部的调用者）可见。JavaScript 没有这些关键字，例 9-3 使用命名约定(typographical conventions)来给出提示：一些属性（名称全用大写字母表示）不应该被修改，另一些属性（名称以下划线开头）不应该在类的外部使用。我们将在本章后面回到这两个主题：私有变量可以使用闭包的局部变量模拟(\$9.6.6)、ES5 中可以使用常量属性(\$9.8.2)。
 
 ## 9.4 类的扩展(Augmenting Classes)
 
@@ -395,7 +393,7 @@ Complex.prototype.conj = function() {
 c.conj(); // => {2,-3}
 ```
 
-内置 JavaScript 类的原型对象也是像这样“开放”的，这意味着我们可以给 numbers，strings，arrays，functions 等类添加新方法。我们其实已经做过这样的事了：在例 8-5 中，我们给 ES3 的 function 类添加了一个 bind()方法。
+内置 JavaScript 类的原型对象也是像这样“开放”的，这意味着我们可以给 numbers，strings，arrays，functions 等类添加新方法。其实我们已经这样做过了：在例 8-5 中，我们给 ES3 的 function 类添加了一个 bind()方法。
 
 ```javascript
 if (!Function.prototype.bind) {
@@ -438,17 +436,17 @@ Function.prototype.getName = function() {
 
 给 Object.prototype 添加方法，让它们对所有的对象可见，也是可行的。但是不推荐这么做，因为 ES5 之前，没有办法让这些附加的方法不可枚举，如果向 Object.prototype 添加属性，那么所有的 for/in 循环都会呈现这些属性。在\$9.8.1 中，我们会看到一个使用 ES5 的 Object.defineProperty()方法来安全扩展 Object.prototype 的例子。
 
-是否可以通过这种方式扩展由宿主环境(如 web 浏览器)定义的类，需要看具体的实现方式。比如，在很多 web 浏览器中，你可以向 HTMLElement.prototype 添加方法，这些方法会被表示当前文档中 HTML tags 的对象所继承。但是，这在当前版本的 IE 浏览器中无效，这严重限制了此技术在客户端编程中的作用。
+是否可以通过这种方式扩展由宿主环境(如 web 浏览器)定义的类，需要看其具体的实现方式。比如，在很多 web 浏览器中，你可以向 HTMLElement.prototype 添加方法，这些方法会被表示当前文档中 HTML tags 的对象所继承。但是，这在当前版本的 IE 浏览器中无效，这严重限制了此技术在客户端编程中的作用。
 
 ## 9.5 类和类型(Classes and Types)
 
 回想一下，我们在第 3 章定义了一些类型：null、undefined、boolean、number、string、 function 和 object。通过 typeof 运算符(\$4.13.2)可以区分这些类型。但是，通常将每个类视为自己的类型，并且能够根据类来区分对象是有用的。核心 JavaScript 的内置对象（和通常客户端 JavaScript 的宿主对象）可以使用类似于例 6-4 的 classof() 函数的代码在 _class_ 属性(\$6.8.2)的基础上进行区分。但是当我们用本章介绍的方法定义自己的类时，其实例对象 _class_ 属性的值通常是"Object"，所以 classof() 函数在这里没有用。
 
-接下来的小节解释了确定任意对象所属类的 3 种技术：instanceof 运算符、constructor 属性和构造函数的名称。然而，这些技术都不是完全令人满意的。本节的最后讨论了**鸭式辨型**(duck-typing)，这是一种编程哲学，专注于一个对象可以做什么（它有什么方法）而不是它的类。
+接下来的小节解释了确定任意对象所属类的 3 种技术：instanceof 运算符、constructor 属性和构造函数的名称。然而，这些技术都不是完全令人满意的。本节的最后讨论了**鸭式辨型**(duck-typing)，这是一种编程哲学，专注于一个对象可以做什么（它有什么方法）而不是它的类是什么。
 
 ### 9.5.1 instanceof 运算符
 
-instanceof 运算符在\$4.9.4 中有详细描述，左操作数是待测试其类的对象，而右操作数是一个命名类的构造函数。如果 o 继承自 c.prototype，表达式 _o instanceof c_ 为 true。继承不一定是直接的，比如 o 继承自一个对象，而这个对象又继承自 c.prototype，那么表达式的值仍然为 true。
+_instanceof_ 运算符在\$4.9.4 中有详细描述，左操作数是待测试其类的对象，而右操作数是一个命名类的构造函数。如果 o 继承自 c.prototype，表达式 _o instanceof c_ 为 true。继承不一定是直接的，比如 o 继承自一个对象，而这个对象又继承自 c.prototype，那么表达式的值仍然为 true。
 
 如本章前面所述，构造函数充当类的公共标识(public identity)，但原型对象是其根本标识(fundamental identity)。尽管在 instanceof 中使用了构造函数，但是这个运算符实际上是在测试一个对象从何处继承，而非测试用于创建它的构造函数。
 
@@ -460,11 +458,11 @@ instanceof 运算符在\$4.9.4 中有详细描述，左操作数是待测试其�
 range.methods.isPrototypeOf(r); // range.methods是原型对象
 ```
 
-instanceof 运算符和 isPrototypeOf()方法的一个缺点是它们不允许我们查询对象的类，只是针对我们指定的类测试对象。在客户端 JavaScript 中，当一个 web 应用程序使用多个 window 或 frame 的时候，会出现一个更严重的问题。每个 window 或 frame 都有一个独立的执行上下文(execution context)，拥有各自独立的全局对象和构造函数集。在两个不同 frames 中创建的两个数组继承自两个不同原型的对象（尽管创建原型的是同一段代码，但是在两个环境中分别执行了 1 次，生成了 2 个不同的原型对象），因此在一个 frame 中创建的数组不是另一个 frame 的 Array()构造函数的实例(instanceof)。
+instanceof 运算符和 isPrototypeOf()方法的一个缺点是它们不允许我们查询对象的类，只是针对我们指定的类测试对象。在客户端 JavaScript 中，当一个 web 应用程序使用多个 window 或 frame 的时候，会出现一个更严重的问题。每个 window 或 frame 都有一个独立的执行上下文(execution context)，拥有各自独立的全局对象和构造函数集。在两个不同 frames 中创建的两个数组继承自两个不同原型的对象（尽管创建原型的是同一段代码，但是在两个环境中分别执行了 1 次，生成的是 2 个不同的原型对象），因此在一个 frame 中创建的数组不是另一个 frame 的 Array()构造函数的实例（instanceof 为 false）。
 
 ### 9.5.2 constructor 属性
 
-识别对象的类的另一种方法是简单地使用 constructor 属性。由于构造函数是类的“门面”(public face)，这也是一种很直接的方法。比如：
+识别对象的类的另一种方法是简单地使用 _constructor_ 属性。由于构造函数是类的“门面”(public face)，这也是一种很直接的方法。比如：
 
 ```javascript
 function typeAndValue(x) {
@@ -571,9 +569,9 @@ var Range = function Range(f, t) {
 
 > When I see a bird that walks like a duck and swims like a duck and quacks like a duck, I call that bird a duck.
 >
-> 当我看见一只像鸭子一样散步，像鸭子一样游泳，像鸭子一样呱呱叫的鸟儿时，我称这只鸟为鸭子。
+> 当我看见一只像鸭子一样散步，像鸭子一样游泳，像鸭子一样嘎嘎叫的鸟儿时，我称这只鸟为鸭子。
 
-对于 JavaScript 程序员来说，这句格言可以理解为：“如果一个对象可以像鸭子一样散步，游泳和呱呱叫，即使它不继承 Duck 类的原型，我们也可以把它当作鸭子对象”。
+对于 JavaScript 程序员来说，这句格言可以理解为：“如果一个对象可以像鸭子一样散步，游泳和嘎嘎叫，即使它不继承 Duck 类的原型，我们也可以把它当作鸭子对象”。
 
 就拿例 9-2 中的 Range 类来说，这个类用来处理数值范围。注意 Range()构造函数并没有检查它的参数来确保它们都是数值，然而它却使用了 > 运算符，所以它假定它们是具有可比性的。同样，includes()方法使用 <= 运算符，但不对 range 对象的端点做任何其他假设。由于这个类没有强制特定的类型，因此其 includes()方法适用于可与关系运算符进行比较的任何类型的端点：
 
@@ -586,13 +584,13 @@ Range 类的 foreach()方法也没有明确测试范围端点的类型，但它�
 
 另一个例子，回想一下我们在\$7.11 中讨论的类数组对象。在很多情况下，我们无须知道一个对象是否真的是数组类的实例，只需知道它有一个非负整数的 length 属性就够了。我们可以说，整型值长度的存在就是数组如何“散步”（对应上面的鸭子散步），并且任何可以以这种方式“散步”的对象都可以（在很多情况下）被视为数组。
 
-然而，要记住，真数组的 length 属性具有特殊的行为：当添加新元素后，length 会自动更新，当把 length 设置为更小的值，数组会自动被截断。我可以说这是数组如何“游泳”和“呱呱叫”。如果你在编写的代码需要“游泳”和“呱呱叫”，你就不能使用只会“散步”的对象。
+然而，要记住，真数组的 length 属性具有特殊的行为：当添加新元素后，length 会自动更新，当把 length 设置为更小的值，数组会自动被截断。我可以说这是数组如何“游泳”和“嘎嘎叫”。如果你在编写的代码需要“游泳”和“嘎嘎叫”，你就不能使用只会“散步”的对象。
 
-上面介绍的鸭式辨型涉及对象对 < 运算符的响应以及 length 属性的特殊行为。然而，更典型的是，当我们我们讨论鸭式辨型时，我们讨论的是测试一个对象是否实现了一个或多个方法。强类型的 triathlon()函数（铁人三项）可能要求其参数为 TriAthlete 对象。鸭式辨型替代方法可以设计为接受具有 walk()，swim()和 bike()方法的任意对象。我们可以更严谨地重新设计 Range 类，以便不使用 < 和 ++ 运算符，而是使用其端点对象的 compareTo()方法和 succ()方法(successor)。
+上面介绍的鸭式辨型涉及对象对 "<" 运算符的响应以及 length 属性的特殊行为。然而，更典型的是，当我们我们讨论鸭式辨型时，我们讨论的是测试一个对象是否实现了一个或多个方法。强类型的 triathlon()函数（铁人三项）可能要求其参数为 TriAthlete 对象。鸭式辨型替代方法可以设计为接受具有 walk()，swim()和 bike()方法的任意对象。我们可以更谨慎地重新设计 Range 类，以便不使用 < 和 ++ 运算符，而是使用其端点对象的 compareTo()方法和 succ()方法(successor)。
 
-鸭式辨型的一种方法是放任自流：我们只是假设我们的输入对象实现了必要的方法并且不做任何检查。如果假设无效，当我们代码尝试调用不存在的方法时，将发生错误。另一种方法是检查输入对象。但是，他不是检查它们的类，而是检查它们是否实现了具有相应名称的方法。这允许我们更早地拒绝错误输入，并且可以提供更多错误信息。
+鸭式辨型的一种方法是放任自流：我们只是假设我们的输入对象实现了必要的方法并且不做任何检查。如果假设无效，当我们代码尝试调用不存在的方法时，将发生错误。另一种方法是检查输入对象。但是，不是检查它们的类，而是检查它们是否实现了具有相应名称的方法。这允许我们更早地拒绝错误输入，并且可以提供更多错误信息。
 
-例 9-5 实现了一个鸭式辨型时有用的 quacks()函数，它测试一个对象 o（由第一个参数指定）是否实现了由剩余参数指定的方法。对每个剩余参数而言，如果其是字符串，就检查 o 中是否有同名方法；如果参数是对象，就检查 o 是否实现了与该对象的方法同名的方法；如果参数是函数，则假定它是构造函数，并检查 o 是否实现了与该函数的原型具有相同名称的方法。
+例 9-5 实现了一个鸭式辨型时有用的 quacks()函数，它测试一个对象 o（由第一个参数指定）是否实现了由剩余参数指定的方法。对每个剩余参数而言，如果其是字符串，就检查 o 中是否有同名方法；如果参数是对象，就检查 o 是否实现了与该对象的方法同名的所有方法；如果参数是函数，则假定它是构造函数，并检查 o 是否实现了与该函数的原型具有相同名称的所有方法。
 
 例 9-5. 用于鸭式辨型检查的函数
 
@@ -613,7 +611,7 @@ function quacks(o /*, ... */) {
         continue;
       case "function": // 函数：使用其原型
         arg = arg.prototype;
-      // 通过到下个case
+      // 通过到下个case继续处理
       case "object": // 对象：检查方法匹配
         for (var m in arg) {
           // 逐一检查对象的属性
@@ -628,7 +626,7 @@ function quacks(o /*, ... */) {
 }
 ```
 
-关于这个 quacks()函数，要记住几个重要的事情。首先，它仅检验对象是否拥有一个或多个具有指定名称并且值为函数的属性。这些属性的存在并不能告诉我们函数做了什么、或者它们期望的参数个数和类型。然而，这却是鸭式辨型的本质特征。如果你使用鸭式辨型而不是更强版本的类型检查来定义 API，那么你创建的是更灵活的 API，但也托付 API 的用户负责正确使用 API。关于 quacks()函数的第二个要求是它不适用于内置类。比如，你不能使用 quacks(o, Array)来测试 o 是否拥有与 Array 所有方法同名的方法。这是因为内置类的方法是不可枚举的，在 quacks()方法的 for/in 循环中看不到它们。（请注意，这个问题可以在 ES5 中使用 Object.getOwmPropertyNames()来解决。）
+关于这个 quacks()函数，要记住几个重要的事情。首先，它仅检验对象是否拥有一个或多个具有指定名称并且值为函数的属性。这些属性的存在并不能告诉我们函数做了什么、或者它们期望的参数个数和类型。然而，这却是鸭式辨型的本质特征。如果你使用鸭式辨型而不是更强版本的类型检查来定义 API，那么你创建的是更灵活的 API，但也托付 API 的用户（使用者）负责正确使用 API。关于 quacks()函数的第二个要求是它不适用于内置类。比如，你不能使用 quacks(o, Array)来测试 o 是否拥有与 Array 所有方法同名的方法。这是因为内置类的方法是不可枚举的，在 quacks()方法的 for/in 循环中看不到它们。（请注意，这个问题可以在 ES5 中使用 Object.getOwnPropertyNames()来解决。）
 
 ## 9.6 JavaScript 中的面向对象技术
 
@@ -636,7 +634,7 @@ function quacks(o /*, ... */) {
 
 ### 9.6.1 例：一个 Set 类
 
-集合(set)是一种数据结构，表示无序且不重复的值的集合。其基本操作是向集合添加值和检测一个值是否是集合的成员。集合通常都已实现，使得这些操作可以快速完成。JavaScript 的对象基本上是属性名称集，值与每个名称相关联。因此，将对象用作字符串的集合是小事一件。例 9-6 实现了一个在 JavaScript 中更一般的 Set 类。它的工作原理是把任意 JavaScript 值映射成唯一的字符串，然后将该字符串用作属性名。对象和函数没有简洁可靠的唯一字符串表示形式，因此 Set 必须对存储在集合中的任何对象或函数定义标识属性。
+集合(set)是一种数据结构，表示无序且不重复的值的集合。其基本操作是向集合添加值和检测一个值是否是集合的成员。（在很多编程语言中）集合通常都已实现，以便这些操作可以快速完成。JavaScript 的对象基本上是属性名称集，其值与每个名称相关联。因此，将对象用作字符串的集合是非常容易的。例 9-6 实现了一个在 JavaScript 中更一般的 Set 类。它的工作原理是把任意 JavaScript 值映射成唯一的字符串，然后将该字符串用作属性名。对象和函数没有简洁可靠的唯一字符串表示形式，因此 Set 必须对存储在集合中的任何对象或函数定义标识属性。
 
 例 9-6. Set.js: 一个值的任意集合
 
@@ -736,7 +734,7 @@ Set._v2s.next = 100; // 给最开始的对象id赋这个初始值
 
 ### 9.6.2 例：枚举类型(Enumerated Types)
 
-枚举类型是有限值的集合，其值在定义时列举（或枚举）出来。在 C 及其派生语言中，枚举类型由 enum 关键字定义。在 ES5 中 enum 是保留字（但尚未使用），说明将来某天 JavaScript 可能会原生支持枚举类型。在此之前，例 9-7 展示了如何在 JavaScript 中定义自己的枚举类型。注意它使用了例 6-1 中的 inherit 方法。
+枚举类型是有限值的集合，其值在定义时列举（或枚举）出来。在 C 及其派生语言中，枚举类型由 enum 关键字定义。在 ES5 中 enum 是保留字（但尚未使用），说明将来某天 JavaScript 可能会原生支持枚举类型。在此之前，例 9-7 展示了如何在 JavaScript 中定义自己的枚举类型。注意它使用了例 6-1 中的 inherit() 方法。
 
 例 9-7 由单个函数 enumeration()组成。然而，它不是构造函数，它并没有定义"enumeration"类。实际上，这是一个工厂函数：每次调用都会创建并返回一个新的类。像这样使用它：
 
@@ -754,7 +752,7 @@ c.constructor == Coin; // => true，适用constructor
 Coin.Quarter + 3 * Coin.Nickel; // => 40：转化为数值(valueOf方法)
 Coin.Dime == 10; // => true：转化为数值
 Coin.Dime > Coin.Nickel; // => true：适用关系运算符
-String(Coin.Dime) + ":" + Coin.Dime; // => "Dime:10":强制转化成字符
+String(Coin.Dime) + ":" + Coin.Dime; // => "Dime:10":强制转化成字符串
 ```
 
 这个例子的重点是展示了 JavaScript 类远比 Java 和 C++等语言的静态类更灵活、更动态(dynamic)。
@@ -808,7 +806,7 @@ function enumeration(nameToValues) {
 }
 ```
 
-枚举类型的"hello world"是使用枚举类型来表示卡牌组中的套牌。例 9-8 以这种方式使用 enumeration()函数，并且还定义了表示卡牌和卡牌组的类。
+枚举类型的"hello world"是使用枚举类型来表示卡牌组中的套牌（例 9-8）。它使用了 enumeration()函数，并定义了表示卡牌和卡牌组的类。
 
 例 9-8. 用枚举类型表示卡牌
 
@@ -845,19 +843,19 @@ Card.Rank = enumeration({
 Card.prototype.toString = function() {
   return this.rank.toString() + " of " + this.suit.toString();
 };
-// 比较两张扑克牌的大小
+// 按扑克牌的方式，比较两张的大小
 Card.prototype.compareTo = function(that) {
   if (this.rank < that.rank) return -1;
   if (this.rank > that.rank) return 1;
   return 0;
 };
 
-// 给扑克牌排序
+// 按扑克牌的方式排序
 Card.orderByBank = function(a, b) {
   return a.compareTo(b);
 };
 
-// 给桥牌排序
+// 按桥牌的方式排序
 Card.orderBySuit = function(a, b) {
   if (a.suit < b.suit) return -1;
   if (a.suit > b.suit) return 1;
@@ -889,13 +887,13 @@ Deck.prototype.shuffle = function() {
   return this;
 };
 
-// 从牌库中抓取n张牌
+// 从牌尾抓取n张牌
 Deck.prototype.deal = function(n) {
   if (this.cards.length < n) throw "Out of cards";
   return this.cards.splice(this.cards.length - n, n);
 };
 
-// 创建一副新牌，洗牌并抓牌
+// 创建一副新牌、洗牌、抓牌并排序
 var deck = new Deck().shuffle();
 var hand = deck.deal(13).sort(Card.orderBySuit);
 ```
@@ -904,15 +902,15 @@ var hand = deck.deal(13).sort(Card.orderBySuit);
 
 $3.8.3和$6.10 描述了用于对象类型转换的重要方法，其中有些是在需要转换时由 JavaScript 解释器自动调用的。你无须为每个你写的类实现这些方法，但是它们是很重要的方法，如果你没有为你的类实现它们，应该是有意为之而不是因为疏忽。
 
-首先是最重要的 toString()方法，该方法的目的是返回表示对象的字符串。如果你使用对象(期望是字符串)作为属性名称，或使用+运算符来连接字符串，JavaScript 自动调用该方法。如果你没有实现这个方法，你的类会从 Object.prototype 继承默认实现并将其转化为无用字符串"[object Object]"。toString()方法可能返回一个人类可读(human-readable)的字符串，适合显示给程序的最终用户。尽管不是必须的，但是为方便 debug 而定义 toString()方法通常也很有用。例 9-2 和例 9-3 中定义的 Range 类和 Complex 类就有 toString()方法，例 9-7 中的枚举类型也是如此。我们将在后面为例 9-6 中的 Set 类定义 toString()方法。
+首先是最重要的 _toString()_ 方法，该方法的目的是返回表示对象的字符串。如果你使用对象（期望是字符串）作为属性名称，或使用+运算符来连接字符串，JavaScript 自动调用该方法。如果你没有实现这个方法，你的类会从 Object.prototype 继承默认实现并将其转化为无用字符串"[object Object]"。toString()方法可以返回一个人类可读(human-readable)的字符串，适合显示给程序的最终用户。尽管不是必须的，但是为方便 debug 而定义 toString()方法通常也很有用。例 9-2 和例 9-3 中定义的 Range 类和 Complex 类就有 toString()方法，例 9-7 中的枚举类型也是如此。我们将在后面为例 9-6 中的 Set 类定义 toString()方法。
 
-第二个是 toLocaleString()方法，它和 toString()方法密切相关：它应该把对象转化为本地化(locale-sensitive)的字符串。对象默认继承一个 toLocaleString()方法，该方法只简单调用了其 toString()方法。一些内置类型具有有用的 toLocaleString()方法，可根据语言环境返回相应的字符串。如果你发现自己编写的 toString()方法把其他对象转换成字符串，那么你还应该定义一个 toLocaleString()方法，通过调用这些对象的 toLocaleString()方法来转换。我们将在下面的 Set 类中做此操作。
+第二个是 _toLocaleString()_ 方法，它和 toString()方法密切相关：它应该把对象转化为本地化(locale-sensitive)的字符串。对象默认继承一个 toLocaleString()方法，该方法只简单调用了其 toString()方法。一些内置类型具有有用的 toLocaleString()方法，可根据语言环境返回相应的字符串。如果你发现自己编写的 toString()方法中还有把其他对象转换成字符串，那么你还应该定义一个 toLocaleString()方法，通过调用这些对象的 toLocaleString()方法来转换。我们在下面的 Set 类中将有此操作。
 
-第三个方法是 valueOf()方法，它的职责是把对象转化为原始值。当一个对象用在数值环境中时（比如和算术运算符("+"以外)、关系运算符一起使用），会自动调用其 valueOf()方法。大多数对象没有合理的原始值表示，也没有定义此方法。然而，例 9-7 中的枚举类型展示了一种 valueOf()方法很重要的场景。
+第三个方法是 _valueOf()_ 方法，它的职责是把对象转化为原始值。当一个对象用在数值环境中时（比如和算术运算符(除了+)、关系运算符一起使用），会自动调用其 valueOf()方法。大多数对象没有合理的原始值表示，也没有定义此方法。然而，例 9-7 中的枚举类型展示了一种 valueOf()方法很重要的场景。
 
-第四个方法是 toJSON()方法，JSON.stringify()会自动调用该方法。JSON 格式用于数据结构的序列化，可以处理 JavaScript 原始值，数组和普通对象。它没有 class 的概念，序列化一个对象时，它会忽略其原型(prototype)和构造函数(constructor)。如果你为 Range 或 Complex 对象调用 JSON.stringify()方法，它将返回类似 {"from": 1, "to": 3} 或 {"r": 1, "i": -1} 的字符串。如果你把这些字符串传给 JSON.parse()方法，你将得到一个普通对象，这个对象具有适合 Range 和 Complex 对象的属性，但不会继承 Range 和 Complex 的方法。
+第四个方法是 _toJSON()_ 方法，JSON.stringify()会自动调用该方法。JSON 格式用于数据结构的序列化，可以处理 JavaScript 原始值，数组和普通对象。它没有 class 的概念，序列化一个对象时，它会忽略其原型(prototype)和构造函数(constructor)。如果你为 Range 或 Complex 对象调用 JSON.stringify()方法，它将返回类似 {"from": 1, "to": 3} 或 {"r": 1, "i": -1} 的字符串。如果你把这些字符串传给 JSON.parse()方法，你将得到一个普通对象，这个对象具有适合 Range 和 Complex 对象的属性，但不会继承 Range 和 Complex 的方法。
 
-这种序列化适合 Range 和 Complex 这样的类，但是对于其他类，你可能想编写 toJSON()方法来定义其他的序列化格式。如果对象有 toJSON()方法，JSON.stringify()不序列化对象而是调用 toJSON()方法并序列化其返回值(原始值或对象)。比如，Date 对象的 toJSON()方法返回表示日期的字符串。例 9-7 中的枚举类型也是如此：它的 toJSON()方法和 toString()方法是相同的。与 Set 最类似的 JSON 是数组，因此我们下面定义的 toJSON()方法是把 Set 对象转换成包含值的数组。
+这种序列化适合 Range 和 Complex 这样的类，但是对于其他类，你可能想编写 toJSON()方法来定义其他的序列化格式。如果对象有 toJSON()方法，JSON.stringify()不再序列化对象而是调用 toJSON()方法并序列化其返回值(原始值或对象)。比如，Date 对象的 toJSON()方法返回表示日期的字符串。例 9-7 中的枚举类型也是如此：它的 toJSON()方法和 toString()方法是相同的。与 Set 最类似的 JSON 数据结构是数组，因此我们下面定义的 toJSON()方法是把 Set 对象转换成一个包含值的数组。
 
 例 9-6 中的 Set 类没有定义上述的任何方法。一个集合没有原始值表达，所以定义 valueOf()方法没有意义，但是这个类应该有 toString()、toLocaleString()和 toJSON()方法。如以下代码所示：（注意使用了例 6-2 中的 extend()方法来为 Set.prototype 添加方法）
 
@@ -938,6 +936,7 @@ extend(Set.prototype, {
       if (v == null) s += v;
       else s += v.toLocaleString();
     });
+    return s + "}";
   },
   // 集合转化为值的数组
   toArray: function() {
@@ -957,10 +956,10 @@ Set.prototype.toJSON = Set.prototype.toArray;
 
 JavaScript 相等运算符通过引用而不是值来比较对象。即是说，给定两个对象的引用，它们会看看这两个引用是否属于同一个对象。它们不会检查两个不同的对象是否具有相同的属性和值。比较两个不同对象是否相等及其相对关系（如 "<" 和 ">" 运算）常常是很有用的。如果你定义一个类并希望能够比较该类的实例，则应定义适当的方法来执行这些比较。
 
-Java 语言使用方法进行对象比较，采用 Java 约定是 JavaScript 中一种常见且有用的做法。为了能测试类的实例是否相等，我们定义一个叫做 equals()的实例方法。它只有一个参数，当这个参数和方法的调用者相等时返回 true。当然，在你的类中"相等"意味着什么由你决定。对于简单的类，你经常可以简单比较 constructor 属性来确保两个对象属于同种类型，再比较其实例属性来确保它们的值相同。例 9-3 中的 Complex 类就有一个这种类型的 equals()方法，我们可以很容易地为 Range 类编写一个类似的方法：
+Java 语言使用方法进行对象比较，采用 Java 约定是 JavaScript 中一种常见且有用的做法。为了能测试类的实例是否相等，我们定义一个叫做 equals()的实例方法。它只有一个参数，当这个参数和方法的调用者相等时返回 true。当然，在你的类中"相等"意味着什么由你决定。对于简单的类，你经常可以先简单比较 constructor 属性来确保两个对象属于同种类型，再比较其实例属性来确保它们的值相同。例 9-3 中的 Complex 类就有一个这种类型的 equals()方法，我们可以很容易地为 Range 类编写一个类似的方法：
 
 ```javascript
-// Range类重写了constructor属性，现在加上它
+// Range类重写(overwrite)了constructor属性，现在加上它
 Range.prototype.constructor = Range;
 
 // Range对象不等于任何非Range对象
@@ -975,17 +974,17 @@ Range.prototype.equals = function(that) {
 };
 ```
 
-为我们的 Set 类定义 equals()方法有点棘手。我们不能只简单比较两个 set 对象的 values 属性值，还必须进行更深入的比较：
+为我们的 Set 类定义 equals()方法有点棘手。我们不能只简单比较两个 set 对象的 values 属性值，还必须进行更深入的比较：({{ 下例中使用try/catch来跳出foreach循环的技巧值得学习一下 }})
 
 ```javascript
 Set.prototype.equals = function(that) {
   if (this === that) return true;
 
-  // 如果that不是set对象，它不等于this
-  // 我们使用instanceof运算符，允许Set的子类
-  // 如果我们想要鸭式辨型，可以跳过这个测试
-  // 或者我们也可以加强它，检查this.constructor==that.constructor
-  // 注意instanceof运算符正好排除了null和undefined值
+  // 如果that不是set对象，它不等于this。
+  // 我们使用instanceof运算符，允许Set的子类。
+  // 如果我们想要鸭式辨型，可以跳过这个测试。
+  // 或者我们也可以加强类型检查，检查this.constructor==that.constructor。
+  // 注意instanceof运算符正好排除了null和undefined值。
   if (!(that instanceof Set)) return false;
 
   // 如果两个set对象的size不同，它们就不相等
@@ -1007,11 +1006,11 @@ Set.prototype.equals = function(that) {
 };
 ```
 
-有时根据某种顺序来比较对象也很有用。对于一些类，可以说一个实例“小于”或“大于”另一个实例。比如，你可以基于下界(lower bound)对 Range 对象进行排序。枚举类型可以按照名称的字符顺序、或者关联值(假设其为数值)的数值大小排序。另一方面，Set 对象通常并不真正具有自然排序。
+有时根据某种顺序来比较对象也很有用。对于一些类，可以说一个实例“小于”或“大于”另一个实例。比如，你可以基于下界(lower bound)对 Range 对象进行排序。枚举类型可以按照名称的字母顺序、或者关联值(假设其为数值)的数值大小排序。另一方面，Set 对象通常并不真正具有自然顺序。
 
-如果你尝试把对象和 JavaScript 关系运算符（比如 < 和 <=）一起使用，JavaScript 首先调用对象的 valueOf()方法，如果这个方法返回原始值，就比较这些值。例 9-7 中由 enumeration()方法返回的枚举类型具有 valueOf()方法，并可以使用关系运算符进行有意义的比较。然而，大多数类并没有 valueOf()方法。要根据你自己选择的明确定义的顺序来比较这种类型的对象，你可以（再次遵守 Java 约定）定义一个 compareTo()方法。
+如果你尝试把对象和 JavaScript 关系运算符（比如 < 和 <=）一起使用，JavaScript 首先调用对象的 valueOf()方法，如果这个方法返回原始值，就比较这些值。例 9-7 中由 enumeration()方法返回的枚举类型具有 valueOf()方法，并可以使用关系运算符进行有意义的比较。然而，大多数类并没有 valueOf()方法。要根据你自己选择的、明确定义的顺序来比较这种类型的对象，你可以（再次遵守 Java 约定）定义一个 compareTo()方法。
 
-compareTo()方法应该只接受一个参数，并和方法的调用者作比较。如果 this 对象小于参数对象，该方法返回小于 0 的值。如果 this 对象大于参数对象，该方法返回大于 0 的值。如果两个对象相等，方法返回 0。关于返回值的这些约定很重要，它们允许你将关系运算符和等号运算符替换为以下表达式：
+compareTo()方法应该只接受一个参数，并和方法的调用者作比较。如果 this 对象小于参数对象，该方法返回小于 0 的值。如果 this 对象大于参数对象，该方法返回大于 0 的值。如果两个对象相等，方法返回 0。关于返回值的这些约定很重要，它们允许你将关系运算符、相等运算符（和不等运算符）替换为以下表达式：
 
 | Replace this | With this           |
 | :----------- | ------------------- |
@@ -1030,11 +1029,11 @@ Range.prototype.compareTo = function(that) {
 };
 ```
 
-请注意，根据两个范围对象的相对顺序，此方法执行的减法正确地返回小于 0，等于 0 或大于 0 的值。由于例 9-8 中的 Card.Rank 枚举具有 valueOf()方法，我们可以在 Card 类的 compareTo()方法中使用这个相同的惯用技巧。
+请注意，根据两个 Range 对象的相对顺序，此方法执行的减法正确地返回小于 0，等于 0 或大于 0 的值。由于例 9-8 中的 Card.Rank 枚举具有 valueOf()方法，我们可以在 Card 类的 compareTo()方法中使用这个相同的惯用技巧。
 
 上面的 equals()方法对其参数进行类型检查，如果参数类型错误，则返回 false 表明不相等。compareTo()方法没有任何返回值可以表明“两个值不具备可比性”，所以执行类型检查的 compareTo()方法通常应该在传入错误类型的参数时抛出一个错误。
 
-注意上面我们为 Range 类定义的 compareTo()方法，当两个 Range 对象的下界相同时，它返回 0。这意味着就 compareTo()而言，任何开始点相同的两个 range 对象都是相等的。这种相等的定义与 equals()方法使用的定义不一致，后者需要两个端点都匹配。这种相等概念的不一致性可能是 bugs 的有害源头，最好是让 equals()和 compareTo()方法一致。这里是一个修订过的 compareTo()方法，它和 equals()方法保持一致，并在遇到不可比的对象时抛出一个错误：
+注意上面我们为 Range 类定义的 compareTo()方法，当两个 Range 对象的下界相同时，它返回 0。这意味着对 compareTo()而言，任何开始点相同的两个 range 对象都是相等的。这种相等的定义与 equals()方法使用的定义不一致，后者需要两个端点都匹配。这种相等概念的不一致性可能是很多 bug 的不良源头，最好是让 equals()和 compareTo()方法一致。这里是一个修订过的 compareTo()方法，它和 equals()方法保持一致，并在遇到不可比的对象时抛出一个错误：
 
 ```javascript
 // 按下界给Range对象排序，当下界相同时比较上界。
@@ -1046,13 +1045,15 @@ Range.prototype.compareTo = function(that) {
   }
   // 比较下界
   var diff = this.from - that.from;
-  // 如果下界相同，比较上街
+  // 如果下界相同，比较上界
   if (diff == 0) diff = this.to - that.to;
   return diff;
 };
 ```
 
-为类定义 compareTo()方法的一个原因是便于对该类的实例数组排序。Array.sort()方法接受一个比较函数作为可选参数，该函数使用与 compareTo()方法相同约定的返回值。给定上面显示的 compareTo()方法，很容易使用以下代码对 Range 对象数组进行排序：
+为类定义 compareTo()方法的一个原因是便于对该类的实例数组进行排序。[Array.sort()][array​.prototype​.sort] 方法接受一个比较函数作为可选参数，该函数使用与 compareTo()方法相同约定的返回值。给定上面展示的 compareTo()方法，很容易使用以下代码对 Range 对象数组进行排序：
+
+[array​.prototype​.sort]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
 
 ```javascript
 Range.sort(function(a, b) {
@@ -1074,23 +1075,23 @@ Range.byLowerBound = function(a, b) {
 ranges.sort(Range.byLowerBound);
 ```
 
-有的类可能有多种排序方式。例如，Card 类中就定义了按花色排序的方法和按大小排序的方法。
+有的类可能有多种排序方式。例如，Card 类中就定义了按花色排序和按大小排序的方法。
 
-### 9.6.5 租借方法(Borrowing Methods)
+### 9.6.5 借用方法(Borrowing Methods)
 
 JavaScript 中的方法没有什么特别之处：它们只是赋值给对象属性的简单函数，并通过对象来调用。同一个函数可以赋值给两个属性，并当作两个方法。例如，我们在 Set 类中曾这样做过，我们重复使用了 toArray()方法，使其具有两种用途（toArray()和 toJSON()）。
 
-同一个函数甚至可以用作多个类的方法。例如，Array 的大多数内置方法都是通用定义的，如果你定义一个实例是类数组对象的类，你可以从 Array.prototype 拷贝方法到你的类的原型对象中。如果你从经典的面向对象语言的视角来看 JavaScript，把一个类中方法用作另一个类的方法可以认为是多重继承的一种形式。然而，JavaScript 不是典型的面向对象语言，我更愿意用非正式用语 _“租借”(borrowing_) 来描述这种方法复用。
+同一个函数甚至可以用作多个类的方法。例如，Array 的大多数内置方法都是通用化定义的，如果你定义一个实例是类数组对象的类，你可以从 Array.prototype 拷贝方法到你的类的原型对象中。如果你从经典的面向对象语言的视角来看 JavaScript，把一个类中方法用作另一个类的方法可以认为是多重继承的一种形式。然而，JavaScript 不是典型的面向对象语言，我更愿意用非正式用语 _“借用”(borrowing_) 来描述这种方法复用。
 
-不是只有数组方法才能被租借：我们可以编写自己的通用方法。例 9-9 定义了通用的 toString()方法和 equals()方法适合简单类（比如我们的 Range、Complex 和 Card 类）使用。如果 Range 类没有 equals()方法，我们可以像这样租借一个通用的 equals()方法：
+不是只有数组方法才能被借用：我们可以编写自己的通用方法。例 9-9 定义了通用的 toString()方法和 equals()方法适合简单类（比如我们的 Range、Complex 和 Card 类）使用。如果 Range 类没有 equals()方法，我们可以像这样借用一个通用的 equals()方法：
 
 ```javascript
 Range.prototype.equals = generic.equals;
 ```
 
-请注意，generic.equals()方法只做了浅比较，它不适用于其实例的属性引用了具有自己 equals()方法的对象的类。还要注意，此方法包含特殊情况的代码，用于处理插入到 Set 中时添加到对象的属性(例 9-6)。
+请注意，generic.equals()方法只做了浅比较，它不适用于其实例的属性引用了具有自己 equals()方法的对象的类。还要注意，此方法包含特例情况的代码，用于处理特殊属性（例 9-6 中添加的 objectId 属性）。
 
-例 9-9. “租借”的通用方法
+例 9-9. “借用”的通用方法
 
 ```javascript
 var generic = {
@@ -1140,9 +1141,9 @@ var generic = {
 
 ### 9.6.6 私有状态
 
-在典型的面向对象语言中，通常有个目标是封装(encapsulate)或隐藏对象内的状态，只允许通过对象的方法来访问该状态，但是现在我们在 JavaScript 中却可以直接读取和写入重要的状态变量。为了达成该目标，Java 等语言在类中允许声明私有(private)的实例变量，这种变量只能由该类的实例方法访问并在类的外部不可见。
+在典型的面向对象语言中，通常有个目标是 _封装(encapsulate)_ 或隐藏对象内的状态，只允许通过对象的方法来访问该状态，但是现在我们在 JavaScript 中却可以直接读取和写入重要的状态变量。为实现这一目标，Java 等语言在类中允许声明 _私有(private)_ 的实例变量，这种变量只能由该类的实例方法访问，而在类的外部其不可见。
 
-我们可以使用从创建实例的构造函数的闭包中捕获的变量（或参数）来近似模拟私有变量。为此，我们在构造函数内部定义函数（这样它们可以访问构造函数的参数和变量）并将这些函数赋值给新创建对象的属性。例 9-10 展示了我们如何创建一个 Range 类的封装版本。新版的实例具有 from 和 to 方法可返回 range 对象的端点（原版的实例直接通过 from 和 to 属性给出端点）。这些 from()和 to()方法是在单个 Range 对象上定义的，而不是从原型继承。其它的 Range 方法和往常一样定义在原型上，但是修改为通过 from()和 to()方法读取端点，而不是直接从属性读取。
+我们可以使用从创建实例的构造函数的闭包中捕获的变量（或参数）来近似模拟私有变量。为做到这点，我们在构造函数内部定义函数（这样它们可以访问构造函数的参数和变量）并将这些函数赋值给新创建对象的属性。例 9-10 展示了我们如何创建一个 Range 类的封装版本。新版的实例具有 from 和 to 方法可返回 range 对象的端点（原版的实例直接通过 from 和 to 属性给出端点）。这些 from()和 to()方法是在单个 Range 对象上定义的，而不是从原型继承。其它的 Range 方法和往常一样定义在原型上，但是修改为通过 from()和 to()方法读取端点，而不是直接从属性读取。
 
 例 9-10. 使用弱封装端点的 Range 类
 
@@ -1177,7 +1178,7 @@ Range.prototype = {
 };
 ```
 
-这个新的 Range 类定义了查询对象端点的方法，但是没有方法或属性可以设置它们。这赋予了这个类的实例一种*不变性(immutability)*:如果正确使用，Range 对象的端点在创建之后将不再改变。然而，除非我们使用 ES5 特性(\$9.8.3)，否则 from 和 to 属性仍然是可写的，Range 对象并非真正的不可变：
+这个新的 Range 类定义了查询对象端点的方法，但是没有方法或属性可以设置它们。这赋予了这个类的实例一种 _不变性(immutability)_ ：如果使用正确，Range 对象的端点在创建之后将不再改变。然而，除非我们使用 ES5 特性（来做出更多限制）(\$9.8.3)，否则 from 和 to 属性仍然是可写的，Range 对象并非真正的不可变：
 
 ```javascript
 var r = new Range(1, 5); // 一个“不可变”的range对象
@@ -1191,7 +1192,7 @@ r.from = function() {
 
 ### 9.6.7 构造函数重载(Overloading)和工厂方法
 
-有时我们想允许对象有多种初始化方式。例如，我们可能想创建一个由半径和角度（极坐标 polar coordinates）而不是实部和虚部初始化的 Complex 对象，或者我们想创建一个 Set 对象，其成员是数组元素而不是传给构造函数的参数。
+有时我们想允许对象有多种初始化方式。例如，我们可能想创建一个由半径和角度（极坐标 polar coordinates）而不是实部和虚部初始化的 Complex 对象，或者我们想创建一个 Set 对象，其成员是数组中的元素而不是传给构造函数的参数。
 
 一种办法是重载(overload)构造函数并根据传入的传输执行不同的初始化操作。比如：这里有一个重载版的 Set 构造函数：
 
@@ -1214,7 +1215,9 @@ function Set() {
 
 这种方式定义的 Set 构造函数允许我们在构造函数调用中显式列出 set 成员或传入包含成员的数组给构造函数。然而，这个构造函数存在一个不幸的歧义，我们不能使用它去创建以一个数组为唯一成员的集合。（要这样做，必须创建一个空的 set，然后显示调用 add()方法）
 
-在初始化为极坐标的复数情况下，构造函数重载确实不可行。复数的两种表示都涉及两个浮点数，除非我们为构造函数添加第三个参数，否则构造函数无法检查其参数并确定需要哪种表示。为此，我们可以编写一个工厂方法 —— 一个返回该类的实例的类方法。这里是一个返回使用极坐标初始化的 Complex 对象的工厂方法：
+({{ 上文中的"歧义"是指：通过上面的构造函数，无法直接创建这样的集合{[1, 2, 3]}，因为调用new Set([1, 2, 3])会返回{1, 2, 3}。 }})
+
+而在初始化为极坐标的复数的例子中，构造函数重载就行不通了。复数的两种表示都涉及两个浮点数，除非我们为构造函数添加第三个参数，否则构造函数无法检查其参数并确定需要哪种表示。为此，我们可以编写一个工厂方法 —— 一个返回该类的实例的类方法。这里是一个返回使用极坐标初始化的 Complex 对象的工厂方法：
 
 ```javascript
 Complex.polar = function(r, theta) {
@@ -1232,7 +1235,7 @@ Set.fromArray = function(a) {
 };
 ```
 
-这里工厂方法的吸引力在于，你可以为它们提供你想要的任何名称，具有不同名字的方法可以执行不同类型的初始化。但是，由于构造函数作为类的公共标识，因此一个类通常只有一个构造函数，不过这并不是一个硬性规定。在 JavaScript 中，定义多个构造函数并共享同一个原型对象是可能的，如果你这样做，由这些构造函数创建的对象都属于同一个类型。这种技术不建议使用，但是这里有一种这种类型的辅助构造函数(auxiliary constructor)：
+这里工厂方法的吸引力在于，你可以为它们提供你想要的任何名称，具有不同名字的方法可以执行不同类型的初始化。但是，由于构造函数是类的公共标识，因此一个类通常只有一个构造函数，尽管这并不是一个硬性规定。在 JavaScript 中，定义多个构造函数并共享同一个原型对象是可能的，如果你这样做，由这些构造函数创建的对象都属于同一个类型。这种技术不建议使用，但是下面还是展示了一种这类型的辅助构造函数(auxiliary constructor)：
 
 ```javascript
 // Set类的辅助构造函数
@@ -1254,9 +1257,9 @@ s instanceof Set; // => true
 
 在面向对象语言中，一个类 B 可以 _扩展(extend)_ 或 _子类化(subclass)_ 另一个类 A。我们就说 A 是 _超类(superclass)_ 而 B 是 _子类(subclass)_ 。B 的实例继承 A 的所有实例方法。B 可以定义自己的实例方法，其中有些可能 _重写(override)_ A 中定义的同名方法。如果 B 的方法重写了 A 的方法，B 中重写的方法可能有时想调用 A 中被重写的方法：这叫做*方法链接(method chaining)*。同样的，子类构造函数 B()有时可能需要调用超类的构造函数 A()，这称为 _构造函数链接(constructor chaining)_ 。子类本身也可以有子类，当使用类的层次结构(hierarchies)时，定义 _抽象类(abstract class)_ 有时很有用。抽象类是指定义了一个或多个没有具体实现的方法的类。这些 _抽象方法(abstract methods)_ 预留给该抽象类的 _实体子类(concrete subclasses)_ 去实现。
 
-在 JavaScript 中，创建子类的关键是正确初始化原型对象。如果 B 是 A 的子类，那么 B.prototype 必须是 A.prototype 的继承者。于是 B 的实例将继承自 B.prototype，而 B.prototype 继承自 A.prototype。本节展示了上面定义的与子类相关的术语，并涵盖了一种子类化的替代方案，称为 _组合(composition)_。
+在 JavaScript 中，创建子类的关键是正确初始化原型对象。如果 B 是 A 的子类，那么 B.prototype 必须是 A.prototype 的继承者。于是 B 的实例将继承自 B.prototype，而 B.prototype 又继承自 A.prototype。本节将展示上述与子类化相关的术语，并介绍一种子类化的替代技术——_组合(composition)_。
 
-使用例 9-6 中的 Set 类作为起点，本节将展示如果定义子类、如何链接构造函数和重写的方法、如果使用组合代替继承以及最后如何从抽象类的实现中分离接口。本节以一个扩展示例结束，该示例定义了 Set 类的层次结构。注意本节中早期的示例旨在演示基本的子类化技术。其中一些示例存在重要缺陷，本节后面将对此进行讨论。
+使用例 9-6 中的 Set 类作为起点，本节将展示如何定义子类、如何链接构造函数以及重写的方法、如果使用组合代替继承以及最后如何从抽象类的实现中分离接口。本节以一个扩展示例结束，该示例定义了 Set 类的层次结构。注意本节中早期的示例旨在演示基本的子类化技术。其中一些示例存在重要缺陷，本节后面将对此进行讨论。
 
 ### 9.7.1 定义一个子类
 
@@ -1337,7 +1340,7 @@ extend(SingletonSet.prototype, {
 });
 ```
 
-我们的 SingletonSet 类有一个很简单的实现，它由五个简单的方法定义组成的。它实现了这五个核心的 Set 方法，但是还从其超类继承一些方法（如 toString()、toArray()和 equals()）。这种方法的继承是定义子类的原因。例如，Set 类具有 equals()方法(\$9.6.4 中定义)。由于 SingletonSet 是 Set 的子类，它自动继承了 equals()方法而无须自己编写。当然，考虑到 SingletonSet 本身极其简单，定义自己的 equals()方法可能更高效：
+我们的 SingletonSet 类有一个很简单的实现，它由五个简单的方法定义组成的。它实现了这五个核心的 Set 方法，而且还从其超类继承一些方法（如 toString()、toArray()和 equals()）。这种方法的继承是我们定义子类的原因。例如，Set 类具有 equals()方法(\$9.6.4 中定义)。由于 SingletonSet 是 Set 的子类，它自动继承了 equals()方法而无须自己编写。当然，考虑到 SingletonSet 本身极其简单，定义自己的 equals()方法可能更高效：
 
 ```javascript
 SingletonSet.prototype.equals = function(that) {
@@ -1345,13 +1348,13 @@ SingletonSet.prototype.equals = function(that) {
 };
 ```
 
-注意 SingletonSet 类没有静态地从 Set 类中“租借”(borrow)这一系列方法，而是动态继承了这些方法。如果我们给 Set.prototype 添加一个新方法，该方法对 Set 和 SingletonSet 类的所有实例立即变得可用（假设 SingletonSet 尚未定义同名方法）。
+注意 SingletonSet 类没有静态地从 Set 类中“借用”(borrow)这一系列方法，而是动态继承了这些方法。如果我们给 Set.prototype 添加一个新方法，该方法对 Set 和 SingletonSet 类的所有实例立即变得可用（假设 SingletonSet 尚未定义同名方法）。
 
-### 9.7.2 构造函数和方法链(Method Chaining)
+### 9.7.2 构造函数和方法链接(Constructor and Method Chaining)
 
 上一节的 SingletonSet 类定义了一个全新的 set 实现，并完全替换了从超类继承的核心方法。但是，通常情况下，当我们定义子类时，我们只希望增强或修改超类方法的行为，而不是完全替代它们。要做到这点，子类的构造函数和方法需要调用或者说 _链接到(chain to)_ 超类的构造函数和方法。
 
-例 9-13 演示了这一点。它定义了一个 Set 的子类叫做 NonNullSet：一个不允许 null 和 undefined 作为成员的集合。为了保证成员的合法性，NonNullSet 需要在它的 add()方法中测试 null 和 undefined 值。但是它不想完全重新去实现 add()方法，所以它链接到超类中的该方法。另请注意 NonNullSet()构造函数不会采取任何自己的操作：它简单把它的参数传递给超类构造函数(作为函数而不是构造函数来调用)，以便超类构造函数可以初始化新创建的对象。
+例 9-13 演示了这一点。它定义了一个 Set 的子类叫做 NonNullSet：一个不允许 null 和 undefined 作为成员的集合。为了保证成员的合法性，NonNullSet 需要在它的 add()方法中测试 null 和 undefined 值。但是它不想完全重新去实现 add()方法，所以它链接到超类中的 add()方法。另请注意 NonNullSet()构造函数不会采取任何自己的操作：它简单把它的参数传递给超类构造函数（作为函数而不是构造函数来调用），以便超类构造函数可以初始化新创建的对象。
 
 例 9-13. 从子类到超类的构造函数和方法链接
 
@@ -1396,7 +1399,7 @@ var MySet = filteredSetSubclass(NonNullSet, function(x) {
 });
 ```
 
-此类工厂函数的代码在例 9-14 中。注意这个函数如何像 NonNullSet 那样去执行方法和构造函数链接。
+此类工厂函数的代码在例 9-14 中。注意这个函数是如何像 NonNullSet 那样去执行方法和构造函数链接的。
 
 例 9-14. 类工程和方法链接
 
@@ -1424,7 +1427,7 @@ function filteredSetSubclass(superclass, filter) {
 }
 ```
 
-关于例 9-14 的一个有意思的注意事项是，通过在我们的子类创建代码中包装一个函数，我们可以在我们个构造函数方法链接代码中使用参数作为超类，而不是硬编码具体超类的名称。这意味着如果我们想改变超类，我们只需在一处修改它，而不用每次提及时都搜索我们的代码。这可以说是一种值得使用的技术，即使我们没有定义类工厂。例如，我们可以使用封装函数(wrapper function)和 Function.prototype.extend()方法（例 9-11 中定义）重写我们的 NonNullSet 类：
+关于例 9-14 的一个有意思的注意事项是，通过在我们的子类创建代码中包装一个函数，我们能够在我们的构造函数和方法链接的代码中使用参数作为超类，而不是硬编码具体超类的名称。这意味着如果我们想改变超类，我们只需在一处修改它，而不用每次提及时都搜索我们的代码。这可以说是一种值得使用的技术，即使我们没有定义类工厂。例如，我们可以使用封装函数(wrapper function)和 Function.prototype.extend()方法（例 9-11 中定义）重写我们的 NonNullSet 类：
 
 ```javascript
 // 定义并调用函数
@@ -1457,7 +1460,7 @@ var NonNullSet = (function() {
 
 在上一节中，我们想定义集合并根据某些标准限制它们的成员资格(membership)，我们使用了子类化技术来完成：创建一个特定 Set 的自定义子类，使用特定的过滤器函数来限制集合中成员资格。每个子类和过滤器函数的组合都需要创建一个新类。
 
-但是，还有更好的方式来做这件事。面向对象设计中一个众所周知的原则是 **“组合优先而非继承”(favor composition over inheritance)**。在这个例子中，我们可以使用组合：定义一个新的 set 实现，它“包装”另一个 set 对象，并在过滤掉被禁止的成员之后，将请求（指方法调用）转发给它。例 9-15 展示了它是如何做到的。
+但是，还有更好的方式来做这件事。面向对象设计中一个众所周知的原则是 **“组合优先而非继承”(_favor composition over inheritance_)**。在这个例子中，我们可以使用组合：定义一个新的 set 实现，它“包装”另一个 set 对象，并在过滤掉被禁止的成员之后，将请求（指方法调用）转发给它。例 9-15 展示了它是如何做到的。
 
 例 9-15. 用 sets 的组合代替子类化
 
@@ -1508,8 +1511,7 @@ var s = new FilteredSet(new Set(), function(x) {
 });
 ```
 
-我们甚至可以再次过滤一个已过滤的集合:  
-（原书(PDF 版)这里的代码部分貌似有点问题？_var t = new FilteredSet(s, { function(x} { return !(x instanceof Set); });_）
+我们甚至可以再次过滤一个已过滤的集合:
 
 ```javascript
 var t = new FilteredSet(s, function(x) {
@@ -1517,13 +1519,15 @@ var t = new FilteredSet(s, function(x) {
 });
 ```
 
+({{ 原书（PDF版）这里的代码部分貌似有点问题？_var t = new FilteredSet(s, { function(x} { return !(x instanceof Set); });_ }})
+
 ### 9.7.4 类的层次结构和抽象类
 
-在前一节中，你被要求“组合优先而非继承”。但是为了展示这个原则，我们创建了一个 Set 的子类。我们这样做是为了使得结果类是 Set 的实例，使得它可以继承有用的辅助 Set 方法，如 toString()和 equals()。这些都是有效的实用主义原因，但是如果能够在没有子类化一个具体的实现（像 Set 类这样）的情况下进行 set 组合仍然会很好。可以对实例 9-12 中的 SingletonSet 类进行类型的说明——该类是 Set 的子类，所以它可以继承辅助方法，但它的实现与超类完全不同。SingletonSet 不是特殊版的 Set 类，而是一个完全不同的集合类型。在类层次结果中，SingletonSet 应该是 Set 的兄弟，而不是它的后代。
+在前一节中，你被要求“组合优先而非继承”。但是为了展示这个原则，我们创建了一个 Set 的子类。我们这样做是为了使得结果类是 Set 的实例，以便它可以继承有用的辅助 Set 方法，如 toString()和 equals()。这些都是有效且实用的原因，但是如果能够在没有子类化具体的实现（像 Set 类这样）的情况下进行 set 组合将会很棒。关于这点，可以通过例 9-12 中的 SingletonSet 类来说明——该类是 Set 的子类，所以它可以继承辅助方法，但它的实现与超类完全不同。SingletonSet 不是特殊版的 Set 类，而是一个完全不同的集合类型。在类层次结果中，SingletonSet 应该是 Set 的兄弟，而不是它的后代。
 
-经典面向对象语言和 JavaScript 中的解决方案是将接口与实现分开。假设我们定义一个 AbstractSet 类实现这些辅助方法（如 toString()），但是不实现核心方法（如 foreach()）。那么，我们的 set 实现（Set、SingletonSet 和 FilteredSet）都可以成为 AbstractSet 的子类。SingletonSet 和 FilteredSet 不再是不相关实现的子类。
+经典面向对象语言和 JavaScript 中的解决方案是将接口与实现分开。假设我们定义一个 AbstractSet 类实现这些辅助方法（如 toString()），但是不实现核心方法（如 foreach()）。那么，我们的 set 实现（Set、SingletonSet 和 FilteredSet）都可以成为 AbstractSet 的子类。SingletonSet 和 FilteredSet 不再子类化一个不相关实现（超类）。
 
-例 9-16 进一步采取了这种方法，并定义了抽象类的层次结构。AbstractSet 类只定义一个抽象方法，contains()。任何要成为集合的类都必须至少定义这一个方法。接下来，我们子类化 AbstractSet 来定义 AbstractEnumerableSet 类。该类增加抽象的 size()和 foreach()方法，并在它们的基础上定义了有用的实体方法（toString()、toArray()和 equals()等）。AbstractEnumerableSet 没有定义 add()或 remove()方法，它表示只读的集合。SingletonSet 可以作为一个实体子类实现。最后，我们定义 AbstractWritableSet 作为 AbstractEnumerableSet 的子类。这个最终的抽象类定义了抽象方法 add()和 remove()，并实现了实体方法（如使用它们的 union()和 intersection()）。AbstractWritableSet 是适合我们的 Set 和 FilteredSet 类的超类。但是，在此示例中省略了它们，我们使用了一个全新的实体（非抽象）实现 ArraySet 来代替。
+例 9-16 采取了这种方法，并进一步定义了抽象 set 类的层次结构。AbstractSet 类只定义一个抽象方法，contains()。任何要成为集合的类都必须至少定义这一个方法。接下来，我们通过子类化 AbstractSet 来定义 AbstractEnumerableSet 类。该类增加抽象的 size()和 foreach()方法，并在它们的基础上定义了有用的实体方法（toString()、toArray()和 equals()等）。AbstractEnumerableSet 没有定义 add()或 remove()方法，它表示只读的集合。SingletonSet 可以作为一个实体子类来实现。最后，我们定义 AbstractWritableSet 作为 AbstractEnumerableSet 的子类。这个最终的抽象类定义了抽象方法 add()和 remove()，并实现了一些实体方法（如使用这些抽象方法的 union()和 intersection()）。AbstractWritableSet 是适合我们的 Set 和 FilteredSet 类的超类。但是，我们在此示例中省略了它们（指 Set 和 FilteredSet 类），并使用了一个全新的实体（非抽象）实现 ArraySet 来代替。
 
 例 9-16 是一个较长的示例，但是值得完整阅读它。注意它使用 Function.prototype.extend()作为创建子类的快捷方式。
 
@@ -1545,13 +1549,10 @@ AbstractSet.prototype.contains = abstractmethod;
 
 /**
  * NotSet是AbstractSet的一个实体子类。
- *
- * 这个集合的成员全都不是其他某个集合的成员。
- * 因为它是很具另一个集合定义的，所以它不可写。
- * 又因为它有无限成员，所以它是不可枚举的。
- *
+ * 这个集合的成员是除其他某个集合的成员之外的所有值。
+ * 因为它是根据另一个集合定义的，所以它是不可写的。
+ * 又因为它有无限个成员，所以它是不可枚举的。
  * 我们唯一能做的是测试某个元素是否是其成员。
- *
  * 注意我们使用了Function.prototype.extend()来定义子类。
  */
 var NotSet = AbstractSet.extend(
@@ -1689,7 +1690,7 @@ var AbstractWritableSet = AbstractEnumerableSet.extend(
 
 /**
  * ArraySet是AbstractWritableSet的实体子类。
- * 它以值的数组的形式表示集合元素，并为其contains()方法使用数组的线性搜索。
+ * 它以数组的形式表示集合元素，并在contains()方法中使用数组的线性搜索。
  * 因为contains()方法复杂度是O(n)而不是O(1)，它仅适用于相对较小的集合。
  * 注意以下实现依赖ES5的数组方法indexOf()和forEach()。
  */
@@ -1731,11 +1732,11 @@ var ArraySet = AbstractWritableSet.extend(
 
 ## 9.8 ES5 中的类
 
-ES5 添加了一些方法，可用于指定对象属性(property)的描述属性(attribute)(getters, setters, 可枚举, 可写入和可配置)，也可以限制对象的可扩展性。这些方法在\$6.6, \$6.7 和\$6.8.3 中有所描述，在定义类时它们非常有用。接下来的几个小节展示了如何使用这些 ES5 功能来让你的类更加健壮(robust)。
+ES5 添加了一些方法，可用于指定对象属性(property)的描述属性(attributes)（getters, setters, 可枚举, 可写入和可配置），也可以限制对象的可扩展性。这些方法在\$6.6, \$6.7 和\$6.8.3 中有所描述，在定义类时它们非常有用。接下来的几个小节展示了如何使用这些 ES5 功能来让你的类更加健壮(robust)。
 
 ### 9.8.1 让属性不可枚举
 
-例 9-6 中的 Set 类使用一个小技巧把对象存储为成员：它在任何添加到集合的对象上定义了一个"objectid"属性。之后，如果其他代码在 for/in 循环中使用那个对象，这个新加的属性也会返回。ES5 允许我们通过使属性不可枚举来避免这种情况。例 9-17 展示了如何使用 Object.defineProperty()来这样做，并演示了如何定义 getter 函数以及如何测试一个对象是否可扩展。
+例 9-6 中的 Set 类使用一个小技巧把对象存储为成员：它在任何添加到集合的对象上定义了一个"objectid"属性。在那之后，如果其他代码在 for/in 循环中使用那个对象，这个新加的属性也会返回。ES5 允许我们通过使属性不可枚举来避免这种情况。例 9-17 展示了如何使用 Object.defineProperty()来这样做，并演示了如何定义 getter 函数以及如何测试一个对象是否可扩展。
 
 例 9-17. 定义不可枚举的属性
 
@@ -1782,11 +1783,11 @@ ES5 添加了一些方法，可用于指定对象属性(property)的描述属性
 
 ### 9.8.2 定义不可变的类
 
-除了使属性不可数之外，ES5 允许我们将属性设置为只读，如果我们想定义其实例是不可变的类，这是很方便的。
+除了使属性不可数之外，ES5 允许我们将属性设置为只读。如果我们想定义一个类，并且它的实例是不可变的，就很方便了。
 
 例 9-18 是不可变版本的 Range 类，其中使用了 Object.defineProperty()方法和 Object.create()方法。它还使用了 Object.defineProperties()方法来设置类的原型对象，使其实例方法不可枚举（就像内置类的方法一样）。实际上，它比这更进一步，让这些实例方法只读而且不可删除，这可以防止对类进行任何动态更改(monkey patching)。最后，作为一个有意思的技巧，例 9-18 有一个构造函数，在没有 new 关键字的情况下调用时可以作为工厂函数使用。
 
-例 9-18. 具有只读属性和方法的不可变类
+例 9-18. 具有只读属性和方法的不可变的类
 
 ```javascript
 // 该函数可以使用或不使用 new 关键字：对应构造函数或工厂函数
@@ -1835,6 +1836,8 @@ Object.defineProperties(Range.prototype, {
 
 例 9-18 使用 Object.defineProperties()和 Object.create()方法来定义不可变和不可枚举的属性。它们是很强大的方法，但是它们需要的属性描述符对象可能让代码变得难以阅读。一个替代方案是定义工具函数来修改既有的属性描述符。例 9-19 展示了两个这样的工具函数。
 
+例 9-19. 属性描述符工具函数
+
 ```javascript
 // 使o中指定的（或全部）属性不可写入、也不可配置。
 function freezeProps(o) {
@@ -1871,7 +1874,7 @@ function hideProps(o) {
 }
 ```
 
-Object.defineProperty()和 Object.defineProperties()方法可以用来创建新的属性，也可以修改既有属性的描述属性。当用来定义新属性时，任何你省略的描述属性的值默认都是 false。但是，当用来修改既有属性时，你省略的描述属性将保持原来值不变。例如，在上面的 hideProps()方法中，我们只指定了 enumerable 属性的值，是因为那是我们唯一想要修改的属性。
+Object.defineProperty()和 Object.defineProperties()方法可以用来创建新的属性，也可以修改既有属性的描述属性。当用来定义新属性时，任何你省略的描述属性的值默认都是 false。但是，当用来修改既有属性时，你省略的描述属性将保持原有值不变。例如，在上面的 hideProps()方法中，我们只指定了 enumerable 属性的值，是因为那是我们唯一想要修改的属性。
 
 有了上面定义的这些工具函数，我们可以利用 ES5 的功能来编写一个不可变的类，而不会显著改变我们编写类的方式。例 9-20 展示了一个使用了我们的工具函数的不可变的 Range 类。
 
@@ -1929,7 +1932,7 @@ function Range(from, to) {
     else throw new Error("Range: from must be <= to");
   }
   function setTo(t) {
-    if (this.from <= t) to = t;
+    if (from <= t) to = t;
     else throw new Error("Range: to must be >= from");
   }
 
@@ -1958,7 +1961,10 @@ Range.prototype = hideProps({
 
 ### 9.8.4 防止类扩展
 
-通过向原型对象添加新方法来动态扩展类，通常被认为是 JavaScript 的一个特性。如果你想的话，ES5 允许你阻止这样做。Object.preventExtensions()方法使一个对象不可扩展(\$6.8.3)，它意味着新属性无法添加到这个对象上。Object.seal()更进一步：它阻止添加新属性并让所有当前已有的属性不可配置，这样既有属性就无法被删除。（但是，不可配置的属性也可能是可写入的，你可以将其转化为只读的）。为了阻止 Object.prototype 被扩展，你可以简单编写：
+通过向原型对象添加新方法来动态扩展类，通常被认为是 JavaScript 的一个特性。如果你想的话，ES5 允许你阻止这样做。[Object.preventExtensions()][object.preventextensions] 方法使一个对象不可扩展(\$6.8.3)，它意味着新属性无法添加到这个对象上。[Object.seal()][object.seal] 更进一步：它阻止添加新属性并让所有当前已有的属性不可配置，这样既有属性就无法被删除。（但是，不可配置的属性也可能是可写入的，你可以将其转化为只读的）。为了阻止 Object.prototype 被扩展，你可以简单编写：
+
+[object.preventextensions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions
+[object.seal]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal
 
 ```javascript
 Object.seal(Object.prototype);
@@ -1976,7 +1982,9 @@ Array.prototype.sort = function() {
 };
 ```
 
-你可以通过使你的实例方法只读来阻止这种修改。之前定义的 freezeProps()工具函数是一个可行的解决办法。另一个办法是使用 Object.freeze()，它不仅做了 Object.seal()所作的所有事情，它还让所有的属性只读和不可配置。
+你可以通过使你的实例方法只读来阻止这种修改。之前定义的 freezeProps()工具函数是一个可行的解决办法。另一个办法是使用 [Object.freeze()][object.freeze]，它不仅做了 Object.seal()所作的所有事情，它还让所有的属性只读和不可配置。
+
+[object.freeze]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 
 只读属性有一个特性，使用类时理解它很重要：如果一个对象 o 继承一个只读属性 p，尝试给 o.p 赋值会失败，它不会在 o 中创建一个新属性。如果你想重写(override)一个继承的只读属性，你需要使用 Object.defineProperty()或 Object.defineProperties()或 Object.create()方法来创建一个新属性。这意味着如果你让一个类的实例方法只读，子类重写这些方法将困难很多。
 
@@ -1989,13 +1997,11 @@ Object.freeze(enumeration);
 
 注意通过在枚举类型上调用 Object.freeze()，我们也阻止了未来使用例 9-17 中定义的 objectId 属性。对这个问题的一个解决方案是在冻结之前读取枚举类型的 objectId 属性（调用底层访问器方法并设置内部属性）。
 
-TODO：给个例子？
-
 ### 9.8.5 子类和 ECMAScript5
 
 例 9-22 展示了使用 ES5 功能的的子类化。它定义一个 StringSet 类作为 AbstractWritableSet 类（例 9-16）的子类。这个例子的主要功能是使用 Object.create()方法来创建一个继承超类原型的原型对象，也定义了新创建对象的属性。如前所述，这种方法的难点在于它需要使用笨重的属性描述符。
 
-这个例子的另一个有意思点是它把 null 传给 Object.create()来创建一个对象，这个对象什么都不继承。这个对象用来存储集合的成员，实际上它没有原型，这允许我们使用 in 运算符而不是 hasOwnProperty()方法。
+这个例子的另一个有意思点是它把 null 传给 Object.create()来创建一个对象，这个对象什么都不继承。这个对象用来存储集合的成员，实际上它没有原型，这只能允许我们使用 in 运算符而无法使用 hasOwnProperty()方法。
 
 例 9-22. StringSet: 使用 ES5 的集合子类
 
@@ -2007,7 +2013,7 @@ function StringSet() {
   this.add.apply(this, arguments);
 }
 
-// 注意，使用Object.create，我们可以在一次调用中继承超类的原型并定义方法。
+// 注意，使用Object.create()，我们可以在一次调用中继承超类的原型并定义方法。
 // 由于我们不指定任何writable，enumerable和configurable属性，
 // 它们全都默认为false。只读方法使这个类变得更难子类化。
 StringSet.prototype = Object.create(AbstractWritableSet.prototype, {
@@ -2054,15 +2060,14 @@ StringSet.prototype = Object.create(AbstractWritableSet.prototype, {
 
 ### 9.8.6 属性描述符
 
-\$6.7 介绍了 ES5 的属性描述符，但没有包含很多它们用法的例子。我们以一个 ES5 的扩展示例来结束本节，它将演示关于 ES5 属性的很多操作。例 9-23 将为 Object.prototype 添加一个 properties()方法（当然，它不可枚举）。这个方法的返回值是一个对象，它表示一个属性列表，并定义用于显示属性(properties)和描述属性(attributes)的有用方法（对调试很有用），用于获取属性描述符（当你想拷贝属性以及描述属性时很有用），以及用于设置属性的描述属性（前面定义的 hideProps()和 freezeProps()方法的有用替代方法）。这个例子展示了 ES5 与属性相关的大多数特性，也使用了将在下一节讨论的模块化编码技术。
+\$6.7 介绍了 ES5 的属性描述符，但没有包含很多介绍它们用法的例子。我们以一个 ES5 的扩展示例来结束本节，它将演示关于 ES5 属性的很多操作。例 9-23 将为 Object.prototype 添加一个 properties()方法（当然，它不可枚举）。这个方法的返回值是一个对象，它表示一个属性列表，并定义一些有用方法用来显示对象的属性以及属性描述符（调式时有用）、获取属性描述符（当你想拷贝属性以及属性描述符时很有用），以及设置属性描述符（前面定义的 hideProps()和 freezeProps()方法的有用替代方法）。这个例子展示了 ES5 与属性相关的大多数特性，也使用了将在下一节讨论的模块化编码技术。
 
-例 9-23. ECMAScript5 属性工具类(properties utilities)
+例 9-23. ECMAScript5 属性工具函数(properties utilities)
 
 ```javascript
-// ex 9-23 ECMAScript5 属性工具类(properties utilities)
 /**
  * 在Object.prototype中定义一个properties()方法，
- * 它返回一个对象。它表示调用该方法的对象的命名属性。
+ * 它返回一个对象。它表示调用该方法的对象的指定名称的属性。
  * （或表示对象的全部自有属性（无参数调用时））。
  * 返回的对象定义了4个有用的方法：
  * toString(), descriptors(), hide()和freeze()
@@ -2145,8 +2150,8 @@ StringSet.prototype = Object.create(AbstractWritableSet.prototype, {
   };
 
   // 返回一个格式良好的属性的列表，列出属性名称，值和属性描述符。
-  // 使用术语"permanent"来表述不可配置，readonly表示不可写入，
-  // hidden表示不可枚举。
+  // 使用术语"permanent"来表述不可配置，"readonly"表示不可写入，
+  // "hidden"表示不可枚举。
   // 标准的可枚举, 可写入, 可配置属性没有属性描述符列出。
   Properties.prototype.toString = function() {
     var o = this;
@@ -2172,22 +2177,22 @@ StringSet.prototype = Object.create(AbstractWritableSet.prototype, {
 
   // 最后，使用我们上面定义的方法，让上面的原型对象的实例方法不可枚举。
   Properties.prototype.properties().hide();
-})(); // 定义完成后立即调用闭包函数
+})(); // 定义完成后立即调用这个闭包函数
 ```
 
 ## 9.9 模块
 
-把代码组织到类中的一个重要原因是使代码更加 _模块化(modular)_，适合在各种情况下重用。但是，类不是唯一的模块化代码。通常，一个模块是一个文件的 JavaScript 代码。一个模块文件可能包含一个类定义，一个相关类的集合，一个工具函数的库或仅仅是要执行的代码脚本。任何一块 JavaScript 代码都可以是一个模块，只要它是以模块化方式编写的。JavaScript 没有定义任何处理模块的语言结构（但是，它的确保留了 imports 和 exports 关键字，因此未来版本可能会有模块的官方定义），这意味着编写模块化 JavaScript 代码主要是遵循某些编码约定。
+把代码组织到类中的一个重要原因是使代码更加 _模块化(modular)_，适合在各种情况下重用。但是，类不是唯一的模块化代码。通常，一个模块是 JavaScript 代码的单个文件。一个模块文件可能包含一个类定义，一个相关类的集合，一个工具函数的库或仅仅是要执行的代码脚本。任何一块 JavaScript 代码都可以是一个模块，只要它是以模块化方式编写的。JavaScript 没有定义任何处理模块的语言结构（但是，它保留了 imports 和 exports 关键字，因此未来版本可能会有模块的官方定义），这意味着编写模块化 JavaScript 代码主要是遵循某些编码约定。
 
-许多 JavaScript 库和客户端编程框架包含一些类型的模块系统。例如，Dojo 工具包和 Google Closure 库都定义了 provide()和 require()函数来定义和加载模块。而 CommonJS 服务端 JavaScript 标准化工作（参见 <http://commonjs.org>）创建了一个模块规范，该规范也使用用 require()函数。像这种模块系统经常为你处理模块加载和依赖管理，这超出了讨论的范围。如果你使用其中一个框架，那么你应该遵循适用于该框架的约定来使用和定义和模块。在本节中，我们将讨论非常简单的模块约定。
+许多 JavaScript 库和客户端编程框架包含一些类型的模块系统。例如，Dojo 工具包和 Google Closure 库都定义了 provide()和 require()函数来定义和加载模块。而 CommonJS 服务端 JavaScript 标准化工作（参见 <http://commonjs.org>）创建了一个模块规范，该规范也使用用 require()函数。像这种模块系统经常为你处理模块加载和依赖管理，不过这超出了我们讨论的范围。如果你使用其中一个框架，那么你应该遵循适用于该框架的约定来使用和定义和模块。在本节中，我们将讨论非常简单的模块约定。
 
-模块的目标时允许使用不同来源的代码组装大型程序，并且即使存在模块作者未能预期的代码，所有代码也能正确运行。为了是其工作，各个模块必须避免修改全局执行环境，以便允许后续模块在它期望的原始（或接近原始）环境中运行。实际上，这就意味着模块应该最小化它们定义的全局标记的数量——理想情况下，没有模块应该定义超过一个。接下来的小节将介绍简单的方法来做到这点。你将会看到在 JavaScript 中编写模块化代码并不是很棘手：我们已经在本书很多地方见过了即将介绍的这种技术。
+模块的目标是允许使用不同来源的代码组装大型程序，并且即使存在模块作者未能预期的代码，所有代码也能正确运行。为了使其工作，各个模块必须避免修改全局执行环境，以便允许后续模块在它期望的原始（或接近原始）环境中运行。实际上，这就意味着模块应该最小化它们定义的全局符号(global symbols)的数量——理想情况下，每个模块最多定义一个。接下来的小节将介绍简单的方法来做到这点。你将会看到在 JavaScript 中编写模块化代码并不是很棘手：我们已经在本书很多地方见过了这种即将介绍的技术。
 
 ### 9.9.1 对象作为名称空间
 
 对模块来说，避免创建全局变量的一个方法是使用一个对象作为它的名称空间。它在一个对象（可以由全局变量引用）的属性中存储函数和值，而不是定义全局函数和变量。考虑下例 9-6 中的 Set 类，它定义了一个全局构造函数 Set，也定义了这个类的各种实例方法，但是它将它们存储为 Set.prototype 的属性，所以它们不是全局的。该示例也定义了一个\_v2s()工具函数，但它不是将其作为全局函数，而是将其存储为 Set 的属性。
 
-接下来，考虑例 9-16。这个例子定义了一些抽象的和实体的集合类。每个类只具有唯一的全局标识，但是整个模块（单个代码文件）定义了不少全局变量。从一个干净的全局命名空间的角度来看，如果这个 set 类的模块只定义一个全局变量将会更好：
+接下来，考虑例 9-16。这个例子定义了一些抽象的和实体的集合类。每个类都只具有唯一的全局标识，但是整个模块（单个代码文件）定义了不少全局变量。从一个干净的全局命名空间的角度来看，如果这个 set 类的模块只定义一个全局变量将会更好：
 
 ```javascript
 var sets = {};
@@ -2205,7 +2210,7 @@ sets.SingletonSet = sets.AbstractEnumerableSet.extend(/*...*/);
 var s = new sets.SingletonSet(1);
 ```
 
-模块的作者无法知道其模块将和哪些其他模块一起使用，因此必须通过使用这样的名称空间来防止名称冲突。但是，使用该模块的程序员知道正在使用哪些模块，以及定义了哪些名称。该程序员不必严格使用名称空间，并且可以将常用模块导入到全局名称空间。如果一个程序员频繁从 sets 名称空间中使用 Set 类，他可以这样导入这个类：
+模块的作者无法知道其模块将和哪些其他模块一起使用，因此必须通过使用这样的名称空间来防止名称冲突。但是，使用该模块的程序员知道正在使用哪些模块，以及定义了哪些名称。这种情况下程序员不必严格使用名称空间，并且可以将常用模块导入到全局名称空间。如果一个程序员频繁从 sets 名称空间中使用 Set 类，他可以这样导入这个类：
 
 ```javascript
 // 把Set导入到全局名称空间
@@ -2229,9 +2234,9 @@ collections.sets.AbstractSet = function() {
 };
 ```
 
-有时顶层名称空间用来标识创建模块的人员或组织，并防止名称空间之间发生名称冲突。例如，Google Closure 库，在名称空间 goog.structs 中定义它的 Set 类。个人可以反转 Internet 域名的组件来创建全局唯一的名称空间前缀，它不可能被其他任何模块作者使用。因为我的网站是 davidflanagan.com，我可以在名称空间 com.davidflanagan.collections.sets 发布我的 sets 模块。
+有时顶层名称空间用来标识创建模块的人员或组织，并防止名称空间之间发生名称冲突。例如，Google Closure 库，在名称空间 goog.structs 中定义它的 Set 类。个人可以反转 Internet 域名的组件来创建全局唯一的名称空间前缀，它不可能被其他任何模块作者使用。比如，因为我的网站是 davidflanagan.com，我可以在名称空间 com.davidflanagan.collections.sets 发布我的 sets 模块。
 
-对于这么长的名称空间，对你的模块用户来说导入值就变得很重要。程序员可能将整个模块导入到全局名称空间，而不是导入单个类：
+对于这么长的名称空间，对你的模块用户来说，如何方便地导入其值就显得很重要。程序员可能将整个模块导入到全局名称空间，而不是导入单个类：
 
 ```javascript
 var sets = com.davidflanagan.collections.sets;
@@ -2249,8 +2254,8 @@ var sets = com.davidflanagan.collections.sets;
 
 ```javascript
 // 定义一个全局变量Set并把本函数的返回值赋值给它。
-// 西面的括号和函数名称提示函数将在定义后立即调用，并且
-// 它是正在赋值的函数的返回值，而不是函数本身。注意这是
+// 外面的括号和函数名称提示函数将在定义后立即调用，并且
+// 正被赋值的是函数的返回值，而不是函数本身。注意这是
 // 一个函数表达式，所以函数名"invocation"不会创建全局变量。
 var Set = (function invocation() {
   // 这个构造函数是个局部变量
@@ -2298,7 +2303,7 @@ var Set = (function invocation() {
 })(); // 函数定义完成后，立即调用
 ```
 
-注意此函数定义后立即调用在 JavaScript 中是很常见的。运行在私有名称空间的代码以"(function() {"作为前缀，（中间是函数体），最后紧跟"}());"。开始的左括号(open parenthesis)确保这是个函数表达式，而不是函数定义语句，因此任何阐明你代码的函数名称都可以添加到前缀中。在例 9-24 我们使用名称"invocation"来强调这个函数将会在创建后立即被调用，名称"namespace"也可以用来强调这个函数被作为名称空间。
+注意此函数定义后立即调用在 JavaScript 中是很常见的。运行在私有名称空间的代码以"(function() {"作为前缀，（中间是函数体），最后紧跟"}());"。开始的左括号(open parenthesis)确保这是个函数表达式，而不是函数定义语句，因此任何阐明你代码功能的函数名称都可以添加到函数前缀中。在例 9-24 我们使用名称"invocation"来强调这个函数将会在创建后立即被调用，名称"namespace"也可以用来强调这个函数被作为名称空间。
 
 一旦模块代码密封在一个函数中，它就需要一些方法来导出它的公共 API，以便它可以被外部的模块函数使用。在例 9-24 中，模块函数返回构造函数，我们把它赋值给一个全局变量。事实上返回值很清楚地表明它被导出到函数作用域的外部。在 API 中有多个项目的模块可以返回一个名称空间对象。对于我们的 sets 模块，我们可以编写如下所示的代码：
 
@@ -2359,4 +2364,4 @@ collections.sets = {};
 })();
 ```
 
-定义了模块加载系统的框架可能有其他的方法来导出一个模块的 API。模块可能有一个 provides()方法来注册它们的 API。也可能有一个 exports 对象，模块必须存储其 API 在该对象中。在 JavaScript 有自己的模块管理功能之前，你应该选择最适合你使用的框架或工具包的模块创建和导出系统。
+定义了模块加载系统的框架可能有其他的方法来导出一个模块的 API。模块可能有一个 provides()方法来注册它们的 API，也可能有一个 exports 对象，模块必须将其 API 存储在该对象中。在 JavaScript 有自己的模块管理功能之前，你应该选择最适合你使用的框架或工具包的模块系统。

@@ -188,6 +188,8 @@ console.log(obj);
     Wed Apr 10 2019 22:50:01 GMT+0800 (中国标准时间): 1554907801674,
     null: null, undefined: undefined, NaN: NaN}
 
+理解这个例子的关键是要清楚各种类型对象的 toString()方法的返回值。
+
 可以看到：输出结果中，2 个 Object 对象被合并成了一个属性(2 个 function 对象同理)。这是因为它们使用的都是 Object.prototype.toString()方法来转换为字符串，该方法默认返回[object Object]。 由于 key 出现了重复，前一个的值就被后一个覆盖了。
 
 }})
