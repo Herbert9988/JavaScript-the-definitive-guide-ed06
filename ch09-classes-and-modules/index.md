@@ -2244,7 +2244,7 @@ var sets = com.davidflanagan.collections.sets;
 
 按照惯例，模块的文件名应该匹配它的名称空间。sets 模块应该存储在叫 _sets.js_ 的文件中。如果那个模块使用名称空间 collections.sets，这个文件应该存储在 _collections/_ 目录中（这个目录也可能还包含一个 _map.js_ 文件）。一个使用名称空间 com.davidflanagan.collections.sets 的模块应该在 com/davidflanagan/collections/set.js 文件中。
 
-### 9.9.2 函数作用域作为私有名称
+### 9.9.2 函数作用域作为私有名称空间
 
 模块具有可导出的公共 API：这些是供其他程序员使用的函数、类、属性和方法。但是，模块实现经常需要附加的函数或方法，它们不打算供模块外部使用。例 9-6 中 Set.\_v2s()方法就是一个例子——我们不希望 Set 类的用户调用该函数，因此如果它无法访问将更好。
 
